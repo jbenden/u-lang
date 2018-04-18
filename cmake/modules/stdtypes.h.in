@@ -1,0 +1,116 @@
+/*
+ * This file was generated automatically by CMake, based on
+ * stdtypes.in.h.
+ */
+#ifndef ULANG_STDTYPES_H
+#define ULANG_STDTYPES_H
+
+#ifndef HAVE_INTTYPES_H
+#cmakedefine HAVE_INTTYPES_H
+#endif
+
+#ifndef HAVE_STDINT_H
+#cmakedefine HAVE_STDINT_H
+#endif
+
+#cmakedefine HAVE_SYS_TYPES_H
+#cmakedefine HAVE_STDLIB_H
+#cmakedefine HAVE_STDDEF_H
+
+#cmakedefine HAVE___INT8   @HAVE___INT8@
+#cmakedefine HAVE_INT8_T   @HAVE_INT8_T@
+#cmakedefine HAVE_UINT8_T  @HAVE_UINT8_T@
+#cmakedefine HAVE___INT16  @HAVE___INT16@
+#cmakedefine HAVE_INT16_T  @HAVE_INT16_T@
+#cmakedefine HAVE_UINT16_T @HAVE_UINT16_T@
+#cmakedefine HAVE___INT32  @HAVE___INT32@
+#cmakedefine HAVE_INT32_T  @HAVE_INT32_T@
+#cmakedefine HAVE_UINT32_T @HAVE_UINT32_T@
+#cmakedefine HAVE___INT64  @HAVE___INT64@
+#cmakedefine HAVE_INT64_T  @HAVE_INT64_T@
+
+#ifndef HAVE_UINT64_T
+#cmakedefine HAVE_UINT64_T @HAVE_UINT64_T@
+#endif
+
+#cmakedefine HAVE_SSIZE_T  @HAVE_SSIZE_T@
+#cmakedefine HAVE_SIZE_T   @HAVE_SIZE_T@
+
+#define SHORT_SIZE     @SHORT_SIZE@
+#define INT_SIZE       @INT_SIZE@
+#define LONG_SIZE      @LONG_SIZE@
+#define LONG_LONG_SIZE @LONG_LONG_SIZE@
+
+#if defined (HAVE_STDINT_H)
+#include <stdint.h>
+#endif
+#if defined (HAVE_INTTYPES_H)
+#include <inttypes.h>
+#endif
+#if defined (HAVE_SYS_TYPES_H)
+#include <sys/types.h>
+#endif
+#if defined (HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
+#if defined (HAVE_STDDEF_H)
+#include <stddef.h>
+#endif
+
+#if defined (HAVE_INT8_T) && defined (HAVE_UINT8_T)
+#elif defined (HAVE___INT8)
+typedef __int8 int8_t;
+typedef unsigned __int8 uint8_t;
+#else
+typedef signed char int8_t;
+typedef unsigned char uint8_t;
+#endif
+
+#if defined (HAVE_INT16_T) && defined (HAVE_UINT16_T)
+#elif defined (HAVE___INT16)
+typedef __int16 int16_t;
+typedef unsigned __int16 uint16_t;
+#elif defined (SHORT_SIZE) && SHORT_SIZE == 2
+typedef signed short int16_t;
+typedef unsigned short uint16_t;
+#else
+#error "int16_t and uint16_t are undefined on your platform."
+#endif
+
+#if defined (HAVE_INT32_T) && defined (HAVE_UINT32_T)
+#elif defined (HAVE___INT32)
+typedef __int32 int32_t;
+typedef unsigned __int32 uint32_t;
+#elif defined (INT_SIZE) && INT_SIZE == 4
+typedef signed int int32_t;
+typedef unsigned int uint32_t;
+#elif defined (LONG_SIZE) && LONG_SIZE == 4
+typedef signed long int32_t;
+typedef unsigned long uint32_t;
+#else
+#error "int32_t and uint32_t are undefined on your platform."
+#endif
+
+#if defined (HAVE_INT64_T) && defined (HAVE_UINT64_T)
+#elif defined (HAVE___INT64)
+typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
+#elif defined (LONG_SIZE) && LONG_SIZE == 8
+typedef signed long int64_t;
+typedef unsigned long uint64_t;
+#elif defined (LONG_LONG_SIZE) && LONG_LONG_SIZE == 8
+typedef signed long long int64_t;
+typedef unsigned long long uint64_t;
+#else
+#error "int64_t and uint64_t are undefined on your platform."
+#endif
+
+#if !defined (HAVE_SSIZE_T)
+#error "ssize_t are undefined on your platform."
+#endif
+
+#if !defined (HAVE_SIZE_T)
+#error "size_t are undefined on your platform."
+#endif
+
+#endif

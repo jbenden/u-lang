@@ -1,0 +1,19 @@
+{
+   ignore_gtest_sse_strlen
+   Memcheck:Addr1
+   fun:strlen
+   fun:_ZN7testing8internal6String13CStringEqualsEPKcS3_
+   fun:_ZN7testing8internal14CmpHelperSTREQEPKcS2_S2_S2_
+   ...
+}
+{
+   ignore_stdcpp_malloc_from_dl_init
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21
+   fun:call_init.part.0
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.23.so
+}
