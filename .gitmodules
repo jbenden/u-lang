@@ -4,3 +4,6 @@
 [submodule "third-party/gmock"]
 	path = third-party/gmock
 	url = https://github.com/jbenden/gmock.git
+[submodule "third-party/glog"]
+	path = third-party/glog
+	url = https://github.com/google/glog.git
