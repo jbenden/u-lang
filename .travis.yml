@@ -1,0 +1,17 @@
+language: c
+
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - llvm-5.0-dev
+      - cmake
+
+compiler:
+  - gcc
+  - clang
+
+script:
+  - mkdir build && cd build && cmake ..
+  - cd build && make
