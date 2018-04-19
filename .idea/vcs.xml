@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third-party/gflags" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third-party/glog" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third-party/gmock" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/third-party/utfcpp" vcs="Git" />
+  </component>
+</project>
