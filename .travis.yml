@@ -21,4 +21,4 @@ script:
   - make coverage
 
 after_success:
-  - if [ "$CC" == "gcc" ]; then (coveralls -b . -i lib -i src --exclude tests --exclude third-party --exclude CMakeFiles --gcov-options '\-lp' -y); fi
+  - if [ "$CC" == "gcc" ]; then (coveralls -b . -i lib -i src --exclude tests --exclude third-party --exclude CMakeFiles --gcov-options '\-lp'); fi
