@@ -7,3 +7,6 @@
 [submodule "third-party/glog"]
 	path = third-party/glog
 	url = https://github.com/google/glog.git
+[submodule "third-party/utfcpp"]
+	path = third-party/utfcpp
+	url = https://github.com/nemtrif/utfcpp
