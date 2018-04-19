@@ -52,6 +52,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LLVM_CXXFLAGS}")
 
 add_subdirectory(third-party/gflags)
 
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 add_subdirectory(third-party/glog)
 
 if(ULANG_BUILD_TESTS)
