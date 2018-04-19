@@ -101,6 +101,10 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
   set(COMMON_OPTS "${COMMON_OPTS} -u pthread_key_create -u pthread_key_delete -u pthread_setspecific -u pthread_getspecific -u pthread_spin_init -u pthread_spin_destroy -u pthread_spin_lock -u pthread_spin_trylock -u pthread_spin_unlock -u pthread_mutex_init -u pthread_mutex_destroy -u pthread_mutex_trylock -u pthread_mutex_lock -u pthread_mutex_unlock -u pthread_cond_init -u pthread_cond_destroy -u pthread_cond_signal -u pthread_cond_wait -u _pthread_cleanup_push -u _pthread_cleanup_pop -u pthread_setcancelstate -u pthread_self -u pthread_yield")
 endif()
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set(COMMON_OPTS "${COMMON_OPTS} -Wno-unused-command-line-argument -Wno-uninitialized")
+endif()
+
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${COMMON_OPTS}")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${COMMON_OPTS}")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${COMMON_OPTS}")
