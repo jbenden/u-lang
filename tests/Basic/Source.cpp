@@ -23,12 +23,15 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <u-lang/u.hpp>
 #include <u-lang/Basic/Source.hpp>
+#include <u-lang/u.hpp>
 
 using namespace u;
 
 TEST(BasicSource, CanPassSanity) // NOLINT
 {
-  EXPECT_TRUE(true);
+  StringSource source{"hello world"};
+
+  EXPECT_EQ(0, source.Get());
+  EXPECT_FALSE(source.hasBOM());
 }

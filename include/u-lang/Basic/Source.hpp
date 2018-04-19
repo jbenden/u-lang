@@ -23,6 +23,10 @@
 #ifndef U_LANG_SOURCE_HPP
 #define U_LANG_SOURCE_HPP
 
+#include <fstream>
+#include <sstream>
+#include <string>
+
 #include <u-lang/u.hpp>
 
 namespace u
@@ -32,6 +36,49 @@ class UAPI Source
 {
 public:
   Source() = default;
+
+  Source(Source const &) = delete;
+
+  Source(Source &&) = delete;
+
+  Source &operator=(Source const &) = delete;
+
+  Source &operator=(Source &&) = delete;
+
+  virtual uint32_t Get() = 0;
+
+  virtual bool hasBOM() const = 0;
+};
+
+class UAPI StringSource : public Source
+{
+public:
+  StringSource() = delete;
+
+  explicit StringSource(std::string const &source)
+      : Source(), source_{source}, hasBOM_{false}, stream_{source}, it_{stream_.rdbuf()}, first_{true}
+  {
+  }
+
+  StringSource(StringSource const &) = delete;
+
+  StringSource(StringSource &&) = delete;
+
+  StringSource &operator=(StringSource const &) = delete;
+
+  StringSource &operator=(StringSource &&) = delete;
+
+  bool hasBOM() const override { return hasBOM_; }
+
+  uint32_t Get() override { return 0; }
+
+protected:
+  std::string source_;
+  bool hasBOM_;
+  std::stringstream stream_;
+  std::istreambuf_iterator<char> it_;
+  std::istreambuf_iterator<char> end_;
+  bool first_;
 };
 
 } /* namespace u */
