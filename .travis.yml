@@ -5,6 +5,7 @@ sudo: false
 addons:
   apt:
     packages:
+      - lcov
       - llvm-3.9-dev
       - cmake
 
