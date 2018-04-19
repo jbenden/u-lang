@@ -35,7 +35,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 # https://github.com/ldc-developers/ldc/blob/master/cmake/Modules/FindLLVM.cmake
 set(LLVM_ENABLE_RTTI ON)
 set(LLVM_ENABLE_EH ON)
-find_package(LLVM 5.0.0 REQUIRED COMPONENTS core)
+find_package(LLVM 3.9.0 REQUIRED COMPONENTS core)
 include_directories(${LLVM_INCLUDE_DIRS})
 
 string(REPLACE "-fno-exceptions" "" LLVM_CXXFLAGS ${LLVM_CXXFLAGS})
