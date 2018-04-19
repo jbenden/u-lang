@@ -40,3 +40,4 @@
 
 # VS Code
 /.vscode/tags*
+/.coveralls.yml
