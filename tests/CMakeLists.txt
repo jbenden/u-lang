@@ -4,7 +4,9 @@
 
 enable_testing()
 
-include(CodeCoverage)
+if(ULANG_USE_GCOV)
+  include(CodeCoverage)
+endif()
 
 add_definitions(-DULANG_TEST_FIXTURE_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/fixtures\")
 
@@ -22,8 +24,10 @@ set_target_properties(tests PROPERTIES
 
 include(CXXAdvancedTesting)
 
-setup_target_for_coverage(coverage
-                          $<TARGET_FILE:tests>
-                          ${CMAKE_CURRENT_BINARY_DIR}/coverage)
+if(ULANG_USE_GCOV)
+  setup_target_for_coverage(coverage
+                            $<TARGET_FILE:tests>
+                            ${CMAKE_CURRENT_BINARY_DIR}/coverage)
+endif()
 
 # vim: set ts=2 sw=2 expandtab :
