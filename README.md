@@ -1,6 +1,7 @@
 # The U Programming Language
 
 [![Build Status](https://travis-ci.org/jbenden/u-lang.svg?branch=master)](https://travis-ci.org/jbenden/u-lang)
+[![Coverage Status](https://coveralls.io/repos/github/jbenden/u-lang/badge.svg?branch=master)](https://coveralls.io/github/jbenden/u-lang?branch=master)
 
 ## Supported Compilers
 
