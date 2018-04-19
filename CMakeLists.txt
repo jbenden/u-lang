@@ -47,6 +47,7 @@ string(REPLACE "-g1" "" LLVM_CXXFLAGS ${LLVM_CXXFLAGS})
 string(REPLACE "-W " "" LLVM_CXXFLAGS ${LLVM_CXXFLAGS})
 string(REPLACE "-Wno-maybe-uninitialized" "" LLVM_CXXFLAGS ${LLVM_CXXFLAGS})
 string(REPLACE "-Wl,-fuse-ld=gold" "" LLVM_CXXFLAGS ${LLVM_CXXFLAGS})
+string(REPLACE "-Wdelete-non-virtual-dtor" "" LLVM_CXXFLAGS ${LLVM_CXXFLAGS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LLVM_CXXFLAGS}")
 
