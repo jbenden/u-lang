@@ -103,6 +103,7 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(COMMON_OPTS "${COMMON_OPTS} -Wno-unused-command-line-argument -Wno-uninitialized")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wno-unused-command-line-argument")
 endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${COMMON_OPTS}")
