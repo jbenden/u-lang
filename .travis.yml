@@ -5,7 +5,7 @@ sudo: false
 addons:
   apt:
     packages:
-      - llvm-5.0-dev
+      - llvm-3.9-dev
       - cmake
 
 compiler:
