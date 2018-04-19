@@ -2,6 +2,18 @@
 
 [![Build Status](https://travis-ci.org/jbenden/u-lang.svg?branch=master)](https://travis-ci.org/jbenden/u-lang)
 
+## Supported Compilers
+
+The following table outlines the supported compilers. Other
+compilers may function correctly, but are not supported
+as well as the compilers shown in the table below.
+
+| Compiler Name | Minimum Version |
+|---------------|-----------------|
+| Clang         | 3.8             |
+| GCC           | 3.0             |
+| ICC           | 2018 update 2   |
+
 ## Project details
 
 Both the source code and issue tracker are hosted at
