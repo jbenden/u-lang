@@ -105,6 +105,8 @@ find_package(Threads REQUIRED)
 #----------------------------------------------------------------------
 # Sub-projects
 #----------------------------------------------------------------------
+add_subdirectory(lib)
+
 if(ULANG_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
