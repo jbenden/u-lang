@@ -45,6 +45,8 @@ public:
 
   Source &operator=(Source &&) = delete;
 
+  virtual explicit operator bool() const = 0;
+
   virtual uint32_t Get() = 0;
 
   virtual bool hasBOM() const = 0;
@@ -67,6 +69,8 @@ public:
   StringSource &operator=(StringSource const &) = delete;
 
   StringSource &operator=(StringSource &&) = delete;
+
+  explicit operator bool() const override { return it_ != end_; }
 
   bool hasBOM() const override { return hasBOM_; }
 

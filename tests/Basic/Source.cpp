@@ -32,6 +32,7 @@ TEST(BasicSource, CanPassSanity) // NOLINT
 {
   StringSource source{"hello world"};
 
+  EXPECT_TRUE(!!source);
   EXPECT_EQ(0, source.Get());
   EXPECT_FALSE(source.hasBOM());
 }
