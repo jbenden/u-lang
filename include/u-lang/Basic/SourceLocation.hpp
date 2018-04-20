@@ -93,7 +93,7 @@ protected:
 class UAPI SourceLocation
 {
 public:
-  SourceLocation(std::string const& fileName, std::string const& filePath, SourceRange const& range)
+  SourceLocation(std::string const& fileName, std::string const& filePath, SourceRange const& range) // NOLINT
     : fileName_{fileName}
     , filePath_{filePath}
     , range_{range} {}
