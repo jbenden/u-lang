@@ -60,6 +60,32 @@ TEST(FileSource, WillSkipBOM) // NOLINT
   EXPECT_TRUE(source.hasBOM());
 }
 
+TEST(FileSource, WillSkipFormFeed) // NOLINT
+{
+  FileSource source{ULANG_TEST_FIXTURE_PATH "/Basic/FileSource-WillSkipFormFeed.u"};
+
+  EXPECT_TRUE(!!source);
+  EXPECT_EQ(104, source.Get());
+  EXPECT_EQ(1, source.Where().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, source.Where().getRange().getBegin().getColumn());
+
+  // skip ahead
+  source.Get();
+  source.Get();
+  source.Get();
+  source.Get();
+
+  // must now be at the newline
+  EXPECT_EQ(10, source.Get());
+  EXPECT_EQ(1, source.Where().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(6, source.Where().getRange().getBegin().getColumn());
+
+  // test the next line, first column
+  EXPECT_EQ(119, source.Get());
+  EXPECT_EQ(2, source.Where().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, source.Where().getRange().getBegin().getColumn());
+}
+
 TEST(StringSource, CanPassSanityCheck) // NOLINT
 {
   StringSource source{"hello world"};
@@ -82,4 +108,30 @@ TEST(StringSource, WillSkipBOM) // NOLINT
   EXPECT_TRUE(!!source);
   EXPECT_EQ(104, source.Get());
   EXPECT_TRUE(source.hasBOM());
+}
+
+TEST(StringSource, WillSkipFormFeed) // NOLINT
+{
+  StringSource source{"\xef\xbb\xbfhello\r\nworld"};
+
+  EXPECT_TRUE(!!source);
+  EXPECT_EQ(104, source.Get());
+  EXPECT_EQ(1, source.Where().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, source.Where().getRange().getBegin().getColumn());
+
+  // skip ahead
+  source.Get();
+  source.Get();
+  source.Get();
+  source.Get();
+
+  // must now be at the newline
+  EXPECT_EQ(10, source.Get());
+  EXPECT_EQ(1, source.Where().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(6, source.Where().getRange().getBegin().getColumn());
+
+  // test the next line, first column
+  EXPECT_EQ(119, source.Get());
+  EXPECT_EQ(2, source.Where().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, source.Where().getRange().getBegin().getColumn());
 }

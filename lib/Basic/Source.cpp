@@ -50,6 +50,8 @@ FileSource::FileSource(std::string const& fileName)
   , hasBOM_{false}
   , stream_{fileName, std::ios::in}
   , it_{stream_.rdbuf()}
+  , position_{1, 0}
+  , gotNewLine_{false}
 {
   VLOG(1) << "Reading from " << fileName_;
 
@@ -90,9 +92,32 @@ FileSource::Get()
     first_ = false;
   }
 
-  // FIXME: Normalize Line Endings.
-  // FIXME: Keep track of line number and column.
-  return utf8::next(it_, end_);
+  // process previous new-line
+  if (gotNewLine_)
+  {
+    position_.setColumn(0);
+    position_.incrementLineNumber();
+
+    gotNewLine_ = false;
+  }
+
+  uint32_t ch = utf8::next(it_, end_);
+
+  // increment column
+  position_.incrementColumn();
+
+  while (ch == '\r')
+  {
+    ch = utf8::next(it_, end_);
+  }
+
+  // if NL, then reset column and increment line number.
+  if (ch == '\n')
+  {
+    gotNewLine_ = true;
+  }
+
+  return ch;
 }
 
 uint32_t
@@ -113,5 +138,30 @@ StringSource::Get()
     first_ = false;
   }
 
-  return utf8::next(it_, end_);
+  // process previous new-line
+  if (gotNewLine_)
+  {
+    position_.setColumn(0);
+    position_.incrementLineNumber();
+
+    gotNewLine_ = false;
+  }
+
+  uint32_t ch = utf8::next(it_, end_);
+
+  // increment column
+  position_.incrementColumn();
+
+  while (ch == '\r')
+  {
+    ch = utf8::next(it_, end_);
+  }
+
+  // if NL, then reset column and increment line number.
+  if (ch == '\n')
+  {
+    gotNewLine_ = true;
+  }
+
+  return ch;
 }

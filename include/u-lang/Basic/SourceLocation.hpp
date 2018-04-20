@@ -53,6 +53,18 @@ public:
     return *this;
   }
 
+  SourcePosition& incrementColumn()
+  {
+    ++column_;
+    return *this;
+  }
+
+  SourcePosition& incrementLineNumber()
+  {
+    ++line_;
+    return *this;
+  }
+
 protected:
   uint64_t line_;
   uint64_t column_;

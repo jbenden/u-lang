@@ -80,8 +80,7 @@ public:
   {
     return SourceLocation(fileName_,
                           filePath_,
-                          SourceRange(SourcePosition(1, 1),
-                                      SourcePosition(1, 1)));
+                          SourceRange(position_, position_));
   }
 
 protected:
@@ -92,6 +91,8 @@ protected:
   std::fstream stream_;
   std::istreambuf_iterator<char> it_;
   std::istreambuf_iterator<char> end_;
+  SourcePosition position_;
+  bool gotNewLine_;
 };
 
 class UAPI StringSource : public Source
@@ -106,6 +107,8 @@ public:
     , stream_{source}
     , it_{stream_.rdbuf()}
     , first_{true}
+    , position_{1, 0}
+    , gotNewLine_{false}
   {
   }
 
@@ -127,8 +130,7 @@ public:
   {
     return SourceLocation("top-level.u",
                           ".",
-                          SourceRange(SourcePosition(1, 1),
-                                      SourcePosition(1, 1)));
+                          SourceRange(position_, position_));
   }
 
 protected:
@@ -138,6 +140,8 @@ protected:
   std::istreambuf_iterator<char> it_;
   std::istreambuf_iterator<char> end_;
   bool first_;
+  SourcePosition position_;
+  bool gotNewLine_;
 };
 
 } /* namespace u */
