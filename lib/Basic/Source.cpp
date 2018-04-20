@@ -106,9 +106,9 @@ FileSource::Get()
   // increment column
   position_.incrementColumn();
 
-  while (ch == '\r')
+  while (ch == '\r') // LCOV_EXCL_BR_LINE
   {
-    ch = utf8::next(it_, end_);
+    ch = utf8::next(it_, end_); // LCOV_EXCL_LINE
   }
 
   // if NL, then reset column and increment line number.
