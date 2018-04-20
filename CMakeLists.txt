@@ -92,7 +92,8 @@ endif()
 #----------------------------------------------------------------------
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
-include_directories("${CMAKE_CURRENT_BINARY_DIR}/third-party/glog/include")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/third-party/glog/src")
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/third-party/glog")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/third-party/utfcpp/source")
 
 #----------------------------------------------------------------------
