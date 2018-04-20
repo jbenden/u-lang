@@ -52,6 +52,37 @@ public:
   virtual bool hasBOM() const = 0;
 };
 
+class UAPI FileSource : public Source
+{
+public:
+  FileSource() = delete;
+
+  explicit FileSource(std::string const &fileName);
+
+  FileSource(FileSource const &) = delete;
+
+  FileSource(FileSource &&) = delete;
+
+  FileSource &operator=(FileSource const &) = delete;
+
+  FileSource &operator=(FileSource &&) = delete;
+
+  explicit operator bool() const override { return it_ != end_; }
+
+  bool hasBOM() const override { return hasBOM_; }
+
+  uint32_t Get() override { return 0; }
+
+protected:
+  std::string fileName_;
+  std::string filePath_;
+  bool first_;
+  bool hasBOM_;
+  std::fstream stream_;
+  std::istreambuf_iterator<char> it_;
+  std::istreambuf_iterator<char> end_;
+};
+
 class UAPI StringSource : public Source
 {
 public:

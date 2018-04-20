@@ -20,7 +20,48 @@
  * \license apache2
  */
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wmacro-redefined"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#endif
+#include <llvm/ADT/SmallVector.h>
+#include <llvm/ADT/Twine.h>
+#include <llvm/Support/FileSystem.h>
+#include <llvm/Support/Path.h>
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
+#include <glog/logging.h>
+
 #include <u-lang/u.hpp>
 #include <u-lang/Basic/Source.hpp>
 
 using namespace u;
+
+FileSource::FileSource(std::string const &fileName)
+    : Source(), fileName_{fileName}, first_{true}, hasBOM_{false}, stream_{fileName, std::ios::in}, it_{stream_.rdbuf()}
+{
+  VLOG(1) << "Reading from " << fileName_;
+
+  llvm::SmallVector<char, 0> theFileName;
+  llvm::Twine f{fileName};
+
+  f.toVector(theFileName);
+
+  // Is the fileName path absolute?
+  if (!llvm::sys::path::is_absolute(theFileName))
+  {
+    llvm::sys::fs::make_absolute(theFileName);
+  }
+
+  std::string fn;
+  std::copy(theFileName.begin(), theFileName.end(), std::back_inserter(fn));
+  fileName_ = llvm::sys::path::filename(fn).str();
+
+  llvm::sys::path::remove_filename(theFileName);
+  std::copy(theFileName.begin(), theFileName.end(), std::back_inserter(filePath_));
+}

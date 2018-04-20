@@ -28,6 +28,22 @@
 
 using namespace u;
 
+TEST(FileSource, CanPassAbsolutePathSanityCheck) // NOLINT
+{
+  FileSource source{ULANG_TEST_FIXTURE_PATH "/Basic/FileSource-CanPassSanityCheck.u"};
+
+  EXPECT_TRUE(!!source);
+  EXPECT_EQ(0, source.Get());
+  EXPECT_FALSE(source.hasBOM());
+}
+
+TEST(FileSource, CanPassRelativePathSanityCheck) // NOLINT
+{
+  FileSource source{"Basic/FileSource-CanPassSanityCheck.u"};
+
+  EXPECT_TRUE(!source);
+}
+
 TEST(StringSource, CanPassSanityCheck) // NOLINT
 {
   StringSource source{"hello world"};
