@@ -74,7 +74,7 @@ public:
 
   bool hasBOM() const override { return hasBOM_; }
 
-  uint32_t Get() override { return 0; }
+  uint32_t Get() override;
 
   SourceLocation Where() const override
   {
@@ -121,7 +121,7 @@ public:
 
   bool hasBOM() const override { return hasBOM_; }
 
-  uint32_t Get() override { return 0; }
+  uint32_t Get() override;
 
   SourceLocation Where() const override
   {

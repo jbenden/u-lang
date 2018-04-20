@@ -33,7 +33,7 @@ TEST(FileSource, CanPassAbsolutePathSanityCheck) // NOLINT
   FileSource source{ULANG_TEST_FIXTURE_PATH "/Basic/FileSource-CanPassSanityCheck.u"};
 
   EXPECT_TRUE(!!source);
-  EXPECT_EQ(0, source.Get());
+  EXPECT_EQ(102, source.Get());
   EXPECT_FALSE(source.hasBOM());
   EXPECT_STREQ("FileSource-CanPassSanityCheck.u", source.Where().getFileName().c_str());
   EXPECT_STREQ(ULANG_TEST_FIXTURE_PATH
@@ -51,12 +51,21 @@ TEST(FileSource, CanPassRelativePathSanityCheck) // NOLINT
   EXPECT_TRUE(!source);
 }
 
+TEST(FileSource, WillSkipBOM) // NOLINT
+{
+  FileSource source{ULANG_TEST_FIXTURE_PATH "/Basic/FileSource-CanPassSanityCheck-BOM.u"};
+
+  EXPECT_TRUE(!!source);
+  EXPECT_EQ(102, source.Get());
+  EXPECT_TRUE(source.hasBOM());
+}
+
 TEST(StringSource, CanPassSanityCheck) // NOLINT
 {
   StringSource source{"hello world"};
 
   EXPECT_TRUE(!!source);
-  EXPECT_EQ(0, source.Get());
+  EXPECT_EQ(104, source.Get());
   EXPECT_FALSE(source.hasBOM());
   EXPECT_STREQ("top-level.u", source.Where().getFileName().c_str());
   EXPECT_STREQ(".", source.Where().getFilePath().c_str());
@@ -64,4 +73,13 @@ TEST(StringSource, CanPassSanityCheck) // NOLINT
   EXPECT_EQ(1, source.Where().getRange().getBegin().getColumn());
   EXPECT_EQ(1, source.Where().getRange().getEnd().getLineNumber());
   EXPECT_EQ(1, source.Where().getRange().getEnd().getColumn());
+}
+
+TEST(StringSource, WillSkipBOM) // NOLINT
+{
+  StringSource source{"\xef\xbb\xbfhello world"};
+
+  EXPECT_TRUE(!!source);
+  EXPECT_EQ(104, source.Get());
+  EXPECT_TRUE(source.hasBOM());
 }

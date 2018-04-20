@@ -39,6 +39,7 @@
 
 #include <u-lang/Basic/Source.hpp>
 #include <u-lang/u.hpp>
+#include <utf8.h>
 
 using namespace u;
 
@@ -69,4 +70,48 @@ FileSource::FileSource(std::string const& fileName)
 
   llvm::sys::path::remove_filename(theFileName);
   std::copy(theFileName.begin(), theFileName.end(), std::back_inserter(filePath_));
+}
+
+uint32_t
+FileSource::Get()
+{
+  if (first_)
+  {
+    if (utf8::starts_with_bom(it_, end_))
+    {
+      ++it_;
+      hasBOM_ = true;
+    }
+    else
+    {
+      stream_.unget();
+    }
+
+    first_ = false;
+  }
+
+  // FIXME: Normalize Line Endings.
+  // FIXME: Keep track of line number and column.
+  return utf8::next(it_, end_);
+}
+
+uint32_t
+StringSource::Get()
+{
+  if (first_)
+  {
+    if (utf8::starts_with_bom(it_, end_))
+    {
+      ++it_;
+      hasBOM_ = true;
+    }
+    else
+    {
+      stream_.unget();
+    }
+
+    first_ = false;
+  }
+
+  return utf8::next(it_, end_);
 }
