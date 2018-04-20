@@ -28,7 +28,7 @@
 
 using namespace u;
 
-TEST(BasicSource, CanPassSanity) // NOLINT
+TEST(StringSource, CanPassSanityCheck) // NOLINT
 {
   StringSource source{"hello world"};
 
