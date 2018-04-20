@@ -80,6 +80,7 @@ append_cxx_flag_if_supported(-Wno-literal-suffix COMMON_WARNINGS)
 if(UNIX AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   append_cxx_flag_if_supported(-wd1418 COMMON_WARNINGS) # external function definition with no prior declaration
   append_cxx_flag_if_supported(-wd1684 COMMON_WARNINGS) # conversion from pointer to same-sized integral type
+  append_cxx_flag_if_supported(-wd2259 COMMON_WARNINGS) # non-pointer conversion may lose significant bits
 endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${COMMON_WARNINGS}")
