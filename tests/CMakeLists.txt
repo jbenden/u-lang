@@ -16,6 +16,7 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../third-party/gmock/gtest/incl
 add_executable(tests tests.cpp Basic/Source.cpp)
 add_dependencies(tests stdtypes_h)
 target_link_libraries(tests ulangBasic
+                      glog
                       gmock
                       ${LLVM_LIBRARIES})
 set_target_properties(tests PROPERTIES
