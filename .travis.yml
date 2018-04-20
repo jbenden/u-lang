@@ -18,7 +18,7 @@ before_install:
 
 script:
   - case "$CC" in "" | *gcc*) cmake -DULANG_USE_GCOV=ON .;; *) cmake -DULANG_USE_GCOV=OFF .;; esac
-  - case "$CC" in "" | *gcc*) make coverage;; *) make tests;; esac
+  - case "$CC" in "" | *gcc*) make coverage;; *) make check;; esac
 
 after_success:
   - case "$CC" in "" | *gcc*) coveralls -b $(pwd) -i lib -i src --exclude tests --exclude third-party --exclude CMakeFiles --gcov-options '\-lp';; *) echo Skipped coverage reports;; esac
