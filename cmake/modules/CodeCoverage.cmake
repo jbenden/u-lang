@@ -102,30 +102,59 @@ FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunner _outputname)
 		MESSAGE(FATAL_ERROR "genhtml not found! Aborting...")
 	ENDIF() # NOT GENHTML_PATH
 
-	# Setup target
-	ADD_CUSTOM_TARGET(${_targetname}
+    SET(COVERALLS OFF)
 
-                    # Cleanup lcov
-                    ${LCOV_PATH} --directory . --zerocounters
+    IF($ENV{TRAVIS})
+        SET(COVERALLS ON)
+    ENDIF()
 
-                    # Run tests
-                    COMMAND ${_testrunner} ${ARGV3}
+    IF(COVERALLS)
+	    # Setup target
+    	ADD_CUSTOM_TARGET(${_targetname}
 
-                    # Capturing lcov counters and generating report
-                    COMMAND ${LCOV_PATH} --rc lcov_branch_coverage=1 --directory . --capture --output-file ${_outputname}.info
-                    COMMAND ${LCOV_PATH} --remove ${_outputname}.info 'tests/*' '/usr/*' 'third-party/*' --output-file ${_outputname}.info.cleaned
+                        # Cleanup lcov
+                        ${LCOV_PATH} --directory . --zerocounters
 
-                    # Upload to Coveralls.io
-                    COMMAND coveralls -b ${CMAKE_CURRENT_BINARY_DIR} -i ${CMAKE_SOURCE_DIR}/lib -i ${CMAKE_SOURCE_DIR}/include -y ${CMAKE_SOURCE_DIR}/.coveralls.yml
-                    COMMAND find . -name '*.gcov' -exec rm {} +
+                        # Run tests
+                        COMMAND ${_testrunner} ${ARGV3}
 
-                    # Create HTML report
-                    COMMAND ${GENHTML_PATH} --rc lcov_branch_coverage=1 -o ${_outputname} ${_outputname}.info.cleaned
-                    COMMAND ${CMAKE_COMMAND} -E remove ${_outputname}.info ${_outputname}.info.cleaned
+                        # Capturing lcov counters and generating report
+                        COMMAND ${LCOV_PATH} --rc lcov_branch_coverage=1 --directory . --capture --output-file ${_outputname}.info
+                        COMMAND ${LCOV_PATH} --remove ${_outputname}.info 'tests/*' '/usr/*' 'third-party/*' --output-file ${_outputname}.info.cleaned
 
-                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-                    COMMENT "Resetting code coverage counters to zero.\nProcessing code coverage counters and generating report."
-                    )
+                        # Upload to Coveralls.io
+                        COMMAND coveralls -b ${CMAKE_CURRENT_BINARY_DIR} -i ${CMAKE_SOURCE_DIR}/lib -i ${CMAKE_SOURCE_DIR}/include -y ${CMAKE_SOURCE_DIR}/.coveralls.yml
+                        COMMAND find . -name '*.gcov' -exec rm {} +
+
+                        # Create HTML report
+                        COMMAND ${GENHTML_PATH} --rc lcov_branch_coverage=1 -o ${_outputname} ${_outputname}.info.cleaned
+                        COMMAND ${CMAKE_COMMAND} -E remove ${_outputname}.info ${_outputname}.info.cleaned
+
+                        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                        COMMENT "Resetting code coverage counters to zero.\nProcessing code coverage counters and generating report."
+                        )
+    ELSE()
+	    # Setup target
+    	ADD_CUSTOM_TARGET(${_targetname}
+
+                        # Cleanup lcov
+                        ${LCOV_PATH} --directory . --zerocounters
+
+                        # Run tests
+                        COMMAND ${_testrunner} ${ARGV3}
+
+                        # Capturing lcov counters and generating report
+                        COMMAND ${LCOV_PATH} --rc lcov_branch_coverage=1 --directory . --capture --output-file ${_outputname}.info
+                        COMMAND ${LCOV_PATH} --remove ${_outputname}.info 'tests/*' '/usr/*' 'third-party/*' --output-file ${_outputname}.info.cleaned
+
+                        # Create HTML report
+                        COMMAND ${GENHTML_PATH} --rc lcov_branch_coverage=1 -o ${_outputname} ${_outputname}.info.cleaned
+                        COMMAND ${CMAKE_COMMAND} -E remove ${_outputname}.info ${_outputname}.info.cleaned
+
+                        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                        COMMENT "Resetting code coverage counters to zero.\nProcessing code coverage counters and generating report."
+                        )
+    ENDIF()
 	
 	# Show info where to find the report
 	ADD_CUSTOM_COMMAND(TARGET ${_targetname} POST_BUILD
