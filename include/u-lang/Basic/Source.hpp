@@ -28,6 +28,7 @@
 #include <string>
 
 #include <u-lang/u.hpp>
+#include <u-lang/Basic/SourceLocation.hpp>
 
 namespace u
 {
@@ -48,6 +49,8 @@ public:
   virtual explicit operator bool() const = 0;
 
   virtual uint32_t Get() = 0;
+
+  virtual SourceLocation Where() const = 0;
 
   virtual bool hasBOM() const = 0;
 };
@@ -72,6 +75,14 @@ public:
   bool hasBOM() const override { return hasBOM_; }
 
   uint32_t Get() override { return 0; }
+
+  SourceLocation Where() const override
+  {
+    return SourceLocation(fileName_,
+                          filePath_,
+                          SourceRange(SourcePosition(1, 1),
+                                      SourcePosition(1, 1)));
+  }
 
 protected:
   std::string fileName_;
@@ -111,6 +122,14 @@ public:
   bool hasBOM() const override { return hasBOM_; }
 
   uint32_t Get() override { return 0; }
+
+  SourceLocation Where() const override
+  {
+    return SourceLocation("top-level.u",
+                          ".",
+                          SourceRange(SourcePosition(1, 1),
+                                      SourcePosition(1, 1)));
+  }
 
 protected:
   std::string source_;
