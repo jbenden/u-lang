@@ -114,6 +114,12 @@ FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunner _outputname)
                     # Capturing lcov counters and generating report
                     COMMAND ${LCOV_PATH} --rc lcov_branch_coverage=1 --directory . --capture --output-file ${_outputname}.info
                     COMMAND ${LCOV_PATH} --remove ${_outputname}.info 'tests/*' '/usr/*' 'third-party/*' --output-file ${_outputname}.info.cleaned
+
+                    # Upload to Coveralls.io
+                    COMMAND coveralls -b ${CMAKE_CURRENT_BINARY_DIR} -i ${CMAKE_SOURCE_DIR}/lib -i ${CMAKE_SOURCE_DIR}/include -y ${CMAKE_SOURCE_DIR}/.coveralls.yml
+                    COMMAND find . -name '*.gcov' -exec rm {} +
+
+                    # Create HTML report
                     COMMAND ${GENHTML_PATH} --rc lcov_branch_coverage=1 -o ${_outputname} ${_outputname}.info.cleaned
                     COMMAND ${CMAKE_COMMAND} -E remove ${_outputname}.info ${_outputname}.info.cleaned
 
