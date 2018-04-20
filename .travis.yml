@@ -17,8 +17,8 @@ before_install:
   - pip install --user cpp-coveralls
 
 script:
-  - cmake -DULANG_USE_GCOV=ON .
-  - make coverage
+  - case "$CC" in "" | *gcc*) cmake -DULANG_USE_GCOV=ON .;; *) cmake -DULANG_USE_GCOV=OFF .;; esac
+  - case "$CC" in "" | *gcc*) make coverage;; *) make tests;; esac
 
 after_success:
-  - if [ "$CC" == "gcc" ]; then (coveralls -b . -i lib -i src --exclude tests --exclude third-party --exclude CMakeFiles --gcov-options '\-lp'); fi
+  - case "$CC" in "" | *gcc*) coveralls -b $(pwd) -i lib -i src --exclude tests --exclude third-party --exclude CMakeFiles --gcov-options '\-lp';; *) echo Skipped coverage reports;; esac
