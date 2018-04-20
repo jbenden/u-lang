@@ -20,12 +20,12 @@
  * \license apache2
  */
 
+#include <glog/logging.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <glog/logging.h>
 
 int
-main(int argc, char **argv)
+main(int argc, char** argv)
 {
   ::google::InitGoogleLogging(argv[0]);
 

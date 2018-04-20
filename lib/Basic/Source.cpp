@@ -37,13 +37,18 @@
 
 #include <glog/logging.h>
 
-#include <u-lang/u.hpp>
 #include <u-lang/Basic/Source.hpp>
+#include <u-lang/u.hpp>
 
 using namespace u;
 
-FileSource::FileSource(std::string const &fileName)
-    : Source(), fileName_{fileName}, first_{true}, hasBOM_{false}, stream_{fileName, std::ios::in}, it_{stream_.rdbuf()}
+FileSource::FileSource(std::string const& fileName)
+  : Source()
+  , fileName_{fileName}
+  , first_{true}
+  , hasBOM_{false}
+  , stream_{fileName, std::ios::in}
+  , it_{stream_.rdbuf()}
 {
   VLOG(1) << "Reading from " << fileName_;
 

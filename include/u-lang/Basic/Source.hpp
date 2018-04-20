@@ -37,13 +37,13 @@ class UAPI Source
 public:
   Source() = default;
 
-  Source(Source const &) = delete;
+  Source(Source const&) = delete;
 
-  Source(Source &&) = delete;
+  Source(Source&&) = delete;
 
-  Source &operator=(Source const &) = delete;
+  Source& operator=(Source const&) = delete;
 
-  Source &operator=(Source &&) = delete;
+  Source& operator=(Source&&) = delete;
 
   virtual explicit operator bool() const = 0;
 
@@ -57,15 +57,15 @@ class UAPI FileSource : public Source
 public:
   FileSource() = delete;
 
-  explicit FileSource(std::string const &fileName);
+  explicit FileSource(std::string const& fileName);
 
-  FileSource(FileSource const &) = delete;
+  FileSource(FileSource const&) = delete;
 
-  FileSource(FileSource &&) = delete;
+  FileSource(FileSource&&) = delete;
 
-  FileSource &operator=(FileSource const &) = delete;
+  FileSource& operator=(FileSource const&) = delete;
 
-  FileSource &operator=(FileSource &&) = delete;
+  FileSource& operator=(FileSource&&) = delete;
 
   explicit operator bool() const override { return it_ != end_; }
 
@@ -88,18 +88,23 @@ class UAPI StringSource : public Source
 public:
   StringSource() = delete;
 
-  explicit StringSource(std::string const &source)
-      : Source(), source_{source}, hasBOM_{false}, stream_{source}, it_{stream_.rdbuf()}, first_{true}
+  explicit StringSource(std::string const& source)
+    : Source()
+    , source_{source}
+    , hasBOM_{false}
+    , stream_{source}
+    , it_{stream_.rdbuf()}
+    , first_{true}
   {
   }
 
-  StringSource(StringSource const &) = delete;
+  StringSource(StringSource const&) = delete;
 
-  StringSource(StringSource &&) = delete;
+  StringSource(StringSource&&) = delete;
 
-  StringSource &operator=(StringSource const &) = delete;
+  StringSource& operator=(StringSource const&) = delete;
 
-  StringSource &operator=(StringSource &&) = delete;
+  StringSource& operator=(StringSource&&) = delete;
 
   explicit operator bool() const override { return it_ != end_; }
 
