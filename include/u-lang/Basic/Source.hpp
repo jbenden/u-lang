@@ -50,7 +50,7 @@ public:
 
   virtual uint32_t Get() = 0;
 
-  virtual SourceLocation Where() const = 0;
+  virtual SourceLocation getLocation() const = 0;
 
   virtual bool hasBOM() const = 0;
 };
@@ -76,7 +76,7 @@ public:
 
   uint32_t Get() override;
 
-  SourceLocation Where() const override
+  SourceLocation getLocation() const override
   {
     return SourceLocation(fileName_,
                           filePath_,
@@ -126,7 +126,7 @@ public:
 
   uint32_t Get() override;
 
-  SourceLocation Where() const override
+  SourceLocation getLocation() const override
   {
     return SourceLocation("top-level.u",
                           ".",

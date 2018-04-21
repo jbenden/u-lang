@@ -35,13 +35,13 @@ TEST(FileSource, CanPassAbsolutePathSanityCheck) // NOLINT
   EXPECT_TRUE(!!source);
   EXPECT_EQ(102, source.Get());
   EXPECT_FALSE(source.hasBOM());
-  EXPECT_STREQ("FileSource-CanPassSanityCheck.u", source.Where().getFileName().c_str());
+  EXPECT_STREQ("FileSource-CanPassSanityCheck.u", source.getLocation().getFileName().c_str());
   EXPECT_STREQ(ULANG_TEST_FIXTURE_PATH
-                 "/Basic", source.Where().getFilePath().c_str());
-  EXPECT_EQ(1, source.Where().getRange().getBegin().getLineNumber());
-  EXPECT_EQ(1, source.Where().getRange().getBegin().getColumn());
-  EXPECT_EQ(1, source.Where().getRange().getEnd().getLineNumber());
-  EXPECT_EQ(1, source.Where().getRange().getEnd().getColumn());
+                 "/Basic", source.getLocation().getFilePath().c_str());
+  EXPECT_EQ(1, source.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, source.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, source.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(1, source.getLocation().getRange().getEnd().getColumn());
 }
 
 TEST(FileSource, CanPassRelativePathSanityCheck) // NOLINT
@@ -66,8 +66,8 @@ TEST(FileSource, WillSkipFormFeed) // NOLINT
 
   EXPECT_TRUE(!!source);
   EXPECT_EQ(104, source.Get());
-  EXPECT_EQ(1, source.Where().getRange().getBegin().getLineNumber());
-  EXPECT_EQ(1, source.Where().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, source.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, source.getLocation().getRange().getBegin().getColumn());
 
   // skip ahead
   source.Get();
@@ -77,13 +77,13 @@ TEST(FileSource, WillSkipFormFeed) // NOLINT
 
   // must now be at the newline
   EXPECT_EQ(10, source.Get());
-  EXPECT_EQ(1, source.Where().getRange().getBegin().getLineNumber());
-  EXPECT_EQ(6, source.Where().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, source.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(6, source.getLocation().getRange().getBegin().getColumn());
 
   // test the next line, first column
   EXPECT_EQ(119, source.Get());
-  EXPECT_EQ(2, source.Where().getRange().getBegin().getLineNumber());
-  EXPECT_EQ(1, source.Where().getRange().getBegin().getColumn());
+  EXPECT_EQ(2, source.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, source.getLocation().getRange().getBegin().getColumn());
 }
 
 TEST(StringSource, CanPassSanityCheck) // NOLINT
@@ -93,12 +93,12 @@ TEST(StringSource, CanPassSanityCheck) // NOLINT
   EXPECT_TRUE(!!source);
   EXPECT_EQ(104, source.Get());
   EXPECT_FALSE(source.hasBOM());
-  EXPECT_STREQ("top-level.u", source.Where().getFileName().c_str());
-  EXPECT_STREQ(".", source.Where().getFilePath().c_str());
-  EXPECT_EQ(1, source.Where().getRange().getBegin().getLineNumber());
-  EXPECT_EQ(1, source.Where().getRange().getBegin().getColumn());
-  EXPECT_EQ(1, source.Where().getRange().getEnd().getLineNumber());
-  EXPECT_EQ(1, source.Where().getRange().getEnd().getColumn());
+  EXPECT_STREQ("top-level.u", source.getLocation().getFileName().c_str());
+  EXPECT_STREQ(".", source.getLocation().getFilePath().c_str());
+  EXPECT_EQ(1, source.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, source.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, source.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(1, source.getLocation().getRange().getEnd().getColumn());
 }
 
 TEST(StringSource, WillSkipBOM) // NOLINT
@@ -116,8 +116,8 @@ TEST(StringSource, WillSkipFormFeed) // NOLINT
 
   EXPECT_TRUE(!!source);
   EXPECT_EQ(104, source.Get());
-  EXPECT_EQ(1, source.Where().getRange().getBegin().getLineNumber());
-  EXPECT_EQ(1, source.Where().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, source.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, source.getLocation().getRange().getBegin().getColumn());
 
   // skip ahead
   source.Get();
@@ -127,11 +127,11 @@ TEST(StringSource, WillSkipFormFeed) // NOLINT
 
   // must now be at the newline
   EXPECT_EQ(10, source.Get());
-  EXPECT_EQ(1, source.Where().getRange().getBegin().getLineNumber());
-  EXPECT_EQ(6, source.Where().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, source.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(6, source.getLocation().getRange().getBegin().getColumn());
 
   // test the next line, first column
   EXPECT_EQ(119, source.Get());
-  EXPECT_EQ(2, source.Where().getRange().getBegin().getLineNumber());
-  EXPECT_EQ(1, source.Where().getRange().getBegin().getColumn());
+  EXPECT_EQ(2, source.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, source.getLocation().getRange().getBegin().getColumn());
 }
