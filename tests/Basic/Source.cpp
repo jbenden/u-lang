@@ -103,7 +103,7 @@ TEST(StringSource, CanPassSanityCheck) // NOLINT
 
 TEST(StringSource, WillSkipBOM) // NOLINT
 {
-  StringSource source{"\xef\xbb\xbfhello world"};
+  StringSource source{"\xef\xbb\xbfhello world"}; // NOLINT
 
   EXPECT_TRUE(!!source);
   EXPECT_EQ(104, source.Get());
