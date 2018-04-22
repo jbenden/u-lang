@@ -4,16 +4,20 @@ sudo: false
 
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       - lcov
       - llvm-3.9-dev
       - cmake
+      - g++-4.9
 
 compiler:
   - gcc
   - clang
 
 before_install:
+  - case "$CC" in "" | *gcc*) CC=gcc-4.9 && CXX=g++-4.9;; esac
   - pip install --user cpp-coveralls
 
 script:
