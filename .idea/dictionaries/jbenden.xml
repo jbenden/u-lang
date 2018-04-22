@@ -2,6 +2,7 @@
   <dictionary name="jbenden">
     <words>
       <w>sourcelocation</w>
+      <w>tokenkinds</w>
     </words>
   </dictionary>
 </component>
