@@ -296,6 +296,38 @@ Lexer::Lex()
     return Token(tt, w);
   }
 
+  // Handle identifiers.
+  if (!IsSpace(ch) && ((ch >= 65 && ch <= 90) || (ch == 95) || (ch >= 97 && ch <= 122) || ch >= 128))
+  {
+    std::vector<uint32_t> vStr;
+    vStr.push_back(ch);
+    ch = NextChar();
+
+    while (!IsSpace(ch) && (ch != '\r' && ch != '\n') &&
+      ((ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch == 95) || (ch >= 97 && ch <= 122) || ch >= 128))
+    {
+      vStr.push_back(ch);
+
+      ch = NextChar();
+    }
+
+    std::string str;
+    utf8::utf32to8(vStr.begin(), vStr.end(), std::back_inserter(str));
+
+    // adjust the end column position.
+    auto EndCol = w.getRange().getEnd().getColumn();
+    w.getRange().getEnd().setColumn(EndCol + str.size() - 1);
+
+    // does a specialized token kind exist?
+    if (auto Ident = Identifiers_.get(str))
+    {
+      return Token(Ident->getKind(), w);
+    }
+
+    // return a non-specialized identifier token kind.
+    return Token(tok::identifier, w, str);
+  }
+
   // Handle integer and real values.
   if (std::isdigit(ch))
   {

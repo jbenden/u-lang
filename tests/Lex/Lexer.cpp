@@ -34,14 +34,9 @@ TEST(Lexer, SanityCheck) // NOLINT
   Lexer lexer(source);
 
   Token subject = lexer.Lex();
-  EXPECT_EQ(tok::unknown, subject.getKind());
+  EXPECT_EQ(tok::kw_fn, subject.getKind());
   EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
   EXPECT_EQ(2, subject.getLocation().getRange().getBegin().getColumn());
-
-  Token nextSubject = lexer.Lex();
-  EXPECT_EQ(tok::unknown, nextSubject.getKind());
-  EXPECT_EQ(1, nextSubject.getLocation().getRange().getBegin().getLineNumber());
-  EXPECT_EQ(3, nextSubject.getLocation().getRange().getBegin().getColumn());
 
   Token finalSubject = lexer.Lex();
   EXPECT_EQ(tok::eof, finalSubject.getKind());
@@ -55,11 +50,13 @@ TEST(Lexer, NewLineIncrementsLineNumberAndResetsColumn) // NOLINT
   Lexer lexer(source);
 
   Token subject1 = lexer.Lex();
-  EXPECT_EQ(tok::unknown, subject1.getKind());
+  EXPECT_EQ(tok::kw_let, subject1.getKind());
   EXPECT_EQ(1, subject1.getLocation().getRange().getBegin().getLineNumber());
   EXPECT_EQ(1, subject1.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject1.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(3, subject1.getLocation().getRange().getEnd().getColumn());
 
-  for (unsigned i = 0; i < 5; ++i)
+  for (unsigned i = 0; i < 3; ++i)
     lexer.Lex();
 
   Token subject2 = lexer.Lex();
@@ -68,9 +65,11 @@ TEST(Lexer, NewLineIncrementsLineNumberAndResetsColumn) // NOLINT
   EXPECT_EQ(13, subject2.getLocation().getRange().getBegin().getColumn());
 
   Token subject3 = lexer.Lex();
-  EXPECT_EQ(tok::unknown, subject3.getKind());
+  EXPECT_EQ(tok::kw_let, subject3.getKind());
   EXPECT_EQ(2, subject3.getLocation().getRange().getBegin().getLineNumber());
   EXPECT_EQ(1, subject3.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(2, subject3.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(3, subject3.getLocation().getRange().getEnd().getColumn());
 }
 
 TEST(Lexer, HandlesSimpleIntegerConstant) // NOLINT

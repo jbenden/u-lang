@@ -59,6 +59,7 @@ class UAPI Token
 
   llvm::APFloat apFloat_;
   llvm::APInt apInt_;
+  std::string apIdentifier_;
 
 public:
   Token(tok::TokenKind K, SourceLocation L)
@@ -76,6 +77,12 @@ public:
     , Loc{std::move(L)}
     , apFloat_{0.0}
     , apInt_{std::move(Int)} {}
+
+  Token(tok::TokenKind K, SourceLocation L, std::string Str)
+    : Kind{K}
+    , Loc{std::move(L)}
+    , apFloat_{0.0}
+    , apIdentifier_{std::move(Str)} {}
 
   tok::TokenKind getKind() const { return Kind; }
 

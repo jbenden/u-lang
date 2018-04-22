@@ -41,6 +41,7 @@
 #include <u-lang/Lex/Token.hpp>
 #include <u-lang/Basic/Source.hpp>
 #include <u-lang/Basic/PunctuatorTable.hpp>
+#include <u-lang/Basic/IdentifierTable.hpp>
 #include <u-lang/u.hpp>
 
 #include <cassert>
@@ -69,6 +70,7 @@ class UAPI Lexer
   uint32_t nextChar_;
   uint32_t curValid_;
   PunctuatorTable Punctuators_;
+  IdentifierTable Identifiers_;
 
 public:
   explicit Lexer(Source& source);
