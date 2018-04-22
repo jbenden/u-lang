@@ -27,6 +27,8 @@
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #endif
 #include <llvm/ADT/StringRef.h>
+#include <llvm/ADT/APFloat.h>
+#include <llvm/ADT/APInt.h>
 #include <llvm/Support/ErrorHandling.h>
 
 #ifdef __clang__
@@ -119,6 +121,144 @@ Lexer::GetChar()
   return 0;
 }
 
+static Token
+ConvertFloat(std::string& num, const SourceLocation& w)
+{
+  llvm::APFloat v{-1.0};
+  v.convertFromString(num, llvm::APFloat::rmTowardZero);
+
+  return Token(tok::real_constant, w, v);
+}
+
+static Token
+ConvertInt(std::string& num, const SourceLocation& w, int base)
+{
+  // (Over-)estimate the required number of bits.
+  unsigned NumBits = (((unsigned) num.size() * 64) / 19) + 2u;
+  llvm::APInt Tmp(NumBits, num, (uint8_t) base);
+
+#if 0
+  std::cerr << "Converted '" << num << "' base " << base << " to: " << Tmp.getSExtValue() << std::endl;
+  std::cerr << Tmp.getActiveBits() << " active bits" << std::endl;
+  std::cerr << "Sign bit " << Tmp.isSignBitSet() << std::endl;
+  std::cerr << "Sign extended is " << Tmp.trunc(Tmp.getActiveBits() + 1).sextOrSelf(32).getSExtValue() << std::endl;
+#endif
+
+  return Token(tok::integer_constant, w, Tmp);
+}
+
+Token
+Lexer::NumberToken()
+{
+  uint32_t ch = CurChar();
+  SourceLocation w = getLocation();
+  std::string num;
+  int base = 10;
+
+  if (ch == '0' && PeekChar() == 'x')
+  {
+    base = 16;
+    NextChar();
+    ch = NextChar();
+  }
+  else if (ch == '0' && PeekChar() == 'b')
+  {
+    base = 2;
+    NextChar();
+    ch = NextChar();
+  }
+
+  num = static_cast<char>(ch);
+
+  enum State
+  {
+    Intpart,
+    Fraction,
+    Exponent,
+    Done,
+  } state = Intpart;
+
+  bool isFloat = false;
+  while (state != Done)
+  {
+    switch (state)
+    {
+    case Intpart:ch = NextChar();
+      while ((base == 10 && isdigit(ch)) || (base == 16 && isxdigit(ch)) || (base == 2 && (ch == '0' || ch == '1')) ||
+        (ch == '_'))
+      {
+        if (ch != '_')
+        {
+          num += (char) ch;
+        }
+        ch = NextChar();
+      }
+      break;
+
+    case Fraction:assert(ch == '.' && "fraction should start with '.'");
+      if (PeekChar() == '.' || PeekChar() == ')')
+      {
+        break;
+      }
+      isFloat = true;
+      num += (char) ch;
+      ch = NextChar();
+      while (isdigit(ch) || ch == '_')
+      {
+        if (ch != '_')
+        {
+          num += (char) ch;
+        }
+        ch = NextChar();
+      }
+      break;
+
+    case Exponent:isFloat = true;
+      assert((ch == 'e' || ch == 'E') && "exponent should start with 'e' or 'E'");
+      num += (char) ch;
+      ch = NextChar();
+      if (ch == '+' || ch == '-')
+      {
+        num += (char) ch;
+        ch = NextChar();
+      }
+      while (isdigit(ch))
+      {
+        num += (char) ch;
+        ch = NextChar();
+      }
+      break;
+
+    default:throw std::runtime_error("should not have gotten to this point!"); // LCOV_EXCL_LINE
+      break;
+    }
+
+    if (ch == '.' && state != Fraction && base != 16)
+    {
+      state = Fraction;
+    }
+    else if (state != Exponent && (ch == 'E' || ch == 'e'))
+    {
+      state = Exponent;
+    }
+    else
+    {
+      state = Done;
+    }
+  }
+
+  // adjust the range of this entire Token.
+  w.getRange().getEnd().setColumn(source_.getLocation().getRange().getEnd().getColumn());
+
+  // dispatch to float or integer conversion.
+  if (isFloat)
+  {
+    return ConvertFloat(num, w);
+  }
+
+  return ConvertInt(num, w, base);
+}
+
 Token
 Lexer::Lex()
 {
@@ -132,6 +272,13 @@ Lexer::Lex()
     w = getLocation();
   }
 
+  // Handle integer and real values.
+  if (std::isdigit(ch))
+  {
+    return NumberToken();
+  }
+
+  // Handle newlines.
   if (ch == '\n')
   {
     sourceRange_.getBegin().incrementLineNumber();

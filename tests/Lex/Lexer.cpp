@@ -59,7 +59,7 @@ TEST(Lexer, NewLineIncrementsLineNumberAndResetsColumn) // NOLINT
   EXPECT_EQ(1, subject1.getLocation().getRange().getBegin().getLineNumber());
   EXPECT_EQ(1, subject1.getLocation().getRange().getBegin().getColumn());
 
-  for (unsigned i = 0; i < 8; ++i)
+  for (unsigned i = 0; i < 5; ++i)
     lexer.Lex();
 
   Token subject2 = lexer.Lex();
@@ -71,4 +71,100 @@ TEST(Lexer, NewLineIncrementsLineNumberAndResetsColumn) // NOLINT
   EXPECT_EQ(tok::unknown, subject3.getKind());
   EXPECT_EQ(2, subject3.getLocation().getRange().getBegin().getLineNumber());
   EXPECT_EQ(1, subject3.getLocation().getRange().getBegin().getColumn());
+}
+
+TEST(Lexer, HandlesSimpleIntegerConstant) // NOLINT
+{
+  StringSource source{"42"};
+  Lexer lexer{source};
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::integer_constant, subject.getKind());
+}
+
+TEST(Lexer, HandlesSimpleFloatingPointConstantInScientificNotation) // NOLINT
+{
+  StringSource source{"3.14e+00"};
+  Lexer lexer{source};
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::real_constant, subject.getKind());
+}
+
+TEST(Lexer, HandlesSimpleBase16IntegerConstant) // NOLINT
+{
+  StringSource source{"0x20"};
+  Lexer lexer{source};
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::integer_constant, subject.getKind());
+}
+
+TEST(Lexer, HandlesSimpleBase2IntegerConstant) // NOLINT
+{
+  StringSource source{"0b1111"};
+  Lexer lexer{source};
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::integer_constant, subject.getKind());
+}
+
+TEST(Lexer, HandlesArrayRangeIntegerConstant) // NOLINT
+{
+  StringSource source{"1..2"};
+  Lexer lexer{source};
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::integer_constant, subject.getKind());
+}
+
+TEST(Lexer, HandlesSimpleFloatingPointConstant) // NOLINT
+{
+  StringSource source{"3.1415"};
+  Lexer lexer{source};
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::real_constant, subject.getKind());
+}
+
+TEST(Lexer, IntegerDoesNotIncludeLeadingMinus) // NOLINT
+{
+  StringSource source{"-42"};
+  Lexer lexer{source};
+
+  Token subject1 = lexer.Lex();
+
+  EXPECT_EQ(tok::unknown, subject1.getKind());
+
+  Token subject2 = lexer.Lex();
+
+  EXPECT_EQ(tok::integer_constant, subject2.getKind());
+  EXPECT_EQ(1, subject2.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(2, subject2.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject2.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(3, subject2.getLocation().getRange().getEnd().getColumn());
+}
+
+TEST(Lexer, FloatingPointDoesNotIncludeLeadingMinus) // NOLINT
+{
+  StringSource source{"-3.1415"};
+  Lexer lexer{source};
+
+  Token subject1 = lexer.Lex();
+
+  EXPECT_EQ(tok::unknown, subject1.getKind());
+
+  Token subject2 = lexer.Lex();
+
+  EXPECT_EQ(tok::real_constant, subject2.getKind());
+  EXPECT_EQ(1, subject2.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(2, subject2.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject2.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(7, subject2.getLocation().getRange().getEnd().getColumn());
 }

@@ -72,6 +72,9 @@ public:
 
   SourceLocation getLocation() const { return SourceLocation(fileName_, filePath_, sourceRange_); }
 
+protected:
+  Token NumberToken();
+
 private:
   uint32_t NextChar();
 

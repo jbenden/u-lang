@@ -38,7 +38,8 @@ TOK(comment) // Comment.
 
 TOK(identifier)  // Any identifier.
 
-TOK(numeric_constant) // Integer or floating-point constant.
+TOK(integer_constant)                  // An integer constant value.
+TOK(real_constant)                     // A floating-point constant value.
 
 //PUNCTUATOR(l_square, "[")
 //PUNCTUATOR(r_square, "]")

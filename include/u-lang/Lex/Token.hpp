@@ -29,6 +29,8 @@
 #pragma clang diagnostic ignored "-Wmacro-redefined"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #endif
+#include <llvm/ADT/APFloat.h>
+#include <llvm/ADT/APInt.h>
 #include <llvm/ADT/StringRef.h>
 
 #ifdef __clang__
@@ -52,10 +54,25 @@ class UAPI Token
   tok::TokenKind Kind;
   SourceLocation Loc;
 
+  llvm::APFloat apFloat_;
+  llvm::APInt apInt_;
+
 public:
   Token(tok::TokenKind K, SourceLocation L)
     : Kind{K}
-    , Loc{std::move(L)} {}
+    , Loc{std::move(L)}
+    , apFloat_{0.0} {}
+
+  Token(tok::TokenKind K, SourceLocation L, llvm::APFloat Float)
+    : Kind{K}
+    , Loc{std::move(L)}
+    , apFloat_{std::move(Float)} {}
+
+  Token(tok::TokenKind K, SourceLocation L, llvm::APInt Int)
+    : Kind{K}
+    , Loc{std::move(L)}
+    , apFloat_{0.0}
+    , apInt_{std::move(Int)} {}
 
   tok::TokenKind getKind() const { return Kind; }
 
@@ -88,7 +105,7 @@ public:
   /// string, etc.
   bool isLiteral() const
   {
-    return is(tok::numeric_constant);
+    return isOneOf(tok::integer_constant, tok::real_constant);
   }
 
   SourceLocation getLocation() const
