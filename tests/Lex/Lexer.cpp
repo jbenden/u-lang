@@ -83,6 +83,18 @@ TEST(Lexer, HandlesSimpleIntegerConstant) // NOLINT
   EXPECT_EQ(tok::integer_constant, subject.getKind());
 }
 
+TEST(Lexer, HandlesSimpleIntegerConstantWithThousandsSeparator) // NOLINT
+{
+  StringSource source{"42_000"};
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::integer_constant, subject.getKind());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
+
 TEST(Lexer, HandlesSimpleFloatingPointConstantInScientificNotation) // NOLINT
 {
   StringSource source{"3.14e+00"};
