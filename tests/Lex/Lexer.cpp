@@ -31,7 +31,7 @@ using namespace u;
 TEST(Lexer, SanityCheck) // NOLINT
 {
   StringSource source{" fn"};
-  Lexer lexer{source};
+  Lexer lexer(source);
 
   Token subject = lexer.Lex();
   EXPECT_EQ(tok::unknown, subject.getKind());
@@ -52,7 +52,7 @@ TEST(Lexer, SanityCheck) // NOLINT
 TEST(Lexer, NewLineIncrementsLineNumberAndResetsColumn) // NOLINT
 {
   StringSource source{"let a = 1.42\nlet b = 3.1415"};
-  Lexer lexer{source};
+  Lexer lexer(source);
 
   Token subject1 = lexer.Lex();
   EXPECT_EQ(tok::unknown, subject1.getKind());
@@ -76,7 +76,7 @@ TEST(Lexer, NewLineIncrementsLineNumberAndResetsColumn) // NOLINT
 TEST(Lexer, HandlesSimpleIntegerConstant) // NOLINT
 {
   StringSource source{"42"};
-  Lexer lexer{source};
+  Lexer lexer(source);
 
   Token subject = lexer.Lex();
 
@@ -86,7 +86,7 @@ TEST(Lexer, HandlesSimpleIntegerConstant) // NOLINT
 TEST(Lexer, HandlesSimpleFloatingPointConstantInScientificNotation) // NOLINT
 {
   StringSource source{"3.14e+00"};
-  Lexer lexer{source};
+  Lexer lexer(source);
 
   Token subject = lexer.Lex();
 
@@ -96,7 +96,7 @@ TEST(Lexer, HandlesSimpleFloatingPointConstantInScientificNotation) // NOLINT
 TEST(Lexer, HandlesSimpleBase16IntegerConstant) // NOLINT
 {
   StringSource source{"0x20"};
-  Lexer lexer{source};
+  Lexer lexer(source);
 
   Token subject = lexer.Lex();
 
@@ -106,7 +106,7 @@ TEST(Lexer, HandlesSimpleBase16IntegerConstant) // NOLINT
 TEST(Lexer, HandlesSimpleBase2IntegerConstant) // NOLINT
 {
   StringSource source{"0b1111"};
-  Lexer lexer{source};
+  Lexer lexer(source);
 
   Token subject = lexer.Lex();
 
@@ -116,7 +116,7 @@ TEST(Lexer, HandlesSimpleBase2IntegerConstant) // NOLINT
 TEST(Lexer, HandlesArrayRangeIntegerConstant) // NOLINT
 {
   StringSource source{"1..2"};
-  Lexer lexer{source};
+  Lexer lexer(source);
 
   Token subject = lexer.Lex();
 
@@ -126,7 +126,7 @@ TEST(Lexer, HandlesArrayRangeIntegerConstant) // NOLINT
 TEST(Lexer, HandlesSimpleFloatingPointConstant) // NOLINT
 {
   StringSource source{"3.1415"};
-  Lexer lexer{source};
+  Lexer lexer(source);
 
   Token subject = lexer.Lex();
 
@@ -136,7 +136,7 @@ TEST(Lexer, HandlesSimpleFloatingPointConstant) // NOLINT
 TEST(Lexer, IntegerDoesNotIncludeLeadingMinus) // NOLINT
 {
   StringSource source{"-42"};
-  Lexer lexer{source};
+  Lexer lexer(source);
 
   Token subject1 = lexer.Lex();
 
@@ -154,7 +154,7 @@ TEST(Lexer, IntegerDoesNotIncludeLeadingMinus) // NOLINT
 TEST(Lexer, FloatingPointDoesNotIncludeLeadingMinus) // NOLINT
 {
   StringSource source{"-3.1415"};
-  Lexer lexer{source};
+  Lexer lexer(source);
 
   Token subject1 = lexer.Lex();
 
