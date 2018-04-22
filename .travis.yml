@@ -17,7 +17,7 @@ compiler:
   - clang
 
 before_install:
-  - case "$CC" in "" | *gcc*) CC=gcc-4.9 && CXX=g++-4.9;; esac
+  - case "$CC" in "" | *gcc*) export CC=gcc-4.9; export CXX=g++-4.9;; esac
   - pip install --user cpp-coveralls
 
 script:
