@@ -61,7 +61,7 @@ tok::getPunctuatorSpelling(u::tok::TokenKind Kind)
 {
   switch (Kind)
   {
-#define PUNCTUATOR(X, Y)                                                                                               \
+#define PUNCTUATOR(X, Y, P)                                                                                            \
   case X:                                                                                                              \
     return Y;
 #include <u-lang/Basic/TokenKinds.def>
