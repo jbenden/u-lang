@@ -61,13 +61,4 @@ void PunctuatorTable::AddPunctuators()
   Table.insert(std::make_pair(Y, PunctuatorInfo{Y, tok::X, P}));
 
 #include <u-lang/Basic/TokenKinds.def>
-
-  unsigned count{0};
-  for (auto& p : Table)
-  {
-    std::cerr << tok::getPunctuatorSpelling(p.second.getKind()) << std::endl;
-    ++count;
-  }
-
-  std::cerr << "The count of " << count << std::endl;
 }
