@@ -132,6 +132,19 @@ Lexer::Lex()
     w = getLocation();
   }
 
+  if (ch == '\n')
+  {
+    sourceRange_.getBegin().incrementLineNumber();
+    sourceRange_.getBegin().setColumn(0);
+
+    sourceRange_.getEnd().incrementLineNumber();
+    sourceRange_.getEnd().setColumn(0);
+
+    NextChar();
+
+    return Token(tok::eol, w);
+  }
+
   Token Result = Token(tok::unknown, w);
 
   // Check for an end-of-file condition.

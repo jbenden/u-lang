@@ -48,3 +48,27 @@ TEST(Lexer, SanityCheck) // NOLINT
   EXPECT_EQ(1, finalSubject.getLocation().getRange().getBegin().getLineNumber());
   EXPECT_EQ(4, finalSubject.getLocation().getRange().getBegin().getColumn());
 }
+
+TEST(Lexer, NewLineIncrementsLineNumberAndResetsColumn) // NOLINT
+{
+  StringSource source{"let a = 1.42\nlet b = 3.1415"};
+  Lexer lexer{source};
+
+  Token subject1 = lexer.Lex();
+  EXPECT_EQ(tok::unknown, subject1.getKind());
+  EXPECT_EQ(1, subject1.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject1.getLocation().getRange().getBegin().getColumn());
+
+  for (unsigned i = 0; i < 8; ++i)
+    lexer.Lex();
+
+  Token subject2 = lexer.Lex();
+  EXPECT_EQ(tok::eol, subject2.getKind());
+  EXPECT_EQ(1, subject2.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(13, subject2.getLocation().getRange().getBegin().getColumn());
+
+  Token subject3 = lexer.Lex();
+  EXPECT_EQ(tok::unknown, subject3.getKind());
+  EXPECT_EQ(2, subject3.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject3.getLocation().getRange().getBegin().getColumn());
+}
