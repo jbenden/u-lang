@@ -42,6 +42,8 @@ using namespace u;
 static const char* const TokNames[] = {
 #define TOK(X) #X,
 #define KEYWORD(X) #X,
+#define TYPE(X) #X,
+#define TYPE_MODIFIER(X) #X,
 #include <u-lang/Basic/TokenKinds.def>
 
   nullptr};

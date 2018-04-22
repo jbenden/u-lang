@@ -29,6 +29,12 @@
 #ifndef KEYWORD
 #define KEYWORD(X) TOK(kw_ ## X)
 #endif
+#ifndef TYPE
+#define TYPE(X) TOK(ty_ ## X)
+#endif
+#ifndef TYPE_MODIFIER
+#define TYPE_MODIFIER(X) TOK(ty_mod_ ## X)
+#endif
 
 TOK(unknown)                           // Not a token.
 TOK(eof)                               // End of file.
@@ -52,6 +58,29 @@ PUNCTUATOR(pipepipe, "||", 0)
 KEYWORD(fn)
 //KEYWORD(if)
 
+TYPE(i8)
+TYPE(i16)
+TYPE(i32)
+TYPE(i64)
+
+TYPE(u8)
+TYPE(u16)
+TYPE(u32)
+TYPE(u64)
+
+TYPE(f32)
+TYPE(f64)
+
+TYPE(string)
+TYPE(rune)
+
+TYPE(tuple)
+TYPE(list)
+
+TYPE_MODIFIER(ptr)
+
+#undef TYPE_MODIFIER
+#undef TYPE
 #undef KEYWORD
 #undef PUNCTUATOR
 #undef TOK
