@@ -30,13 +30,13 @@
 #define KEYWORD(X) TOK(kw_ ## X)
 #endif
 
-TOK(unknown) // Not a token.
-TOK(eof)     // End of file.
-TOK(eol)     // End of line.
+TOK(unknown)                           // Not a token.
+TOK(eof)                               // End of file.
+TOK(eol)                               // End of line.
 
-TOK(comment) // Comment.
+TOK(comment)                           // Comment.
 
-TOK(identifier)  // Any identifier.
+TOK(identifier)                        // Any identifier.
 
 TOK(integer_constant)                  // An integer constant value.
 TOK(real_constant)                     // A floating-point constant value.
