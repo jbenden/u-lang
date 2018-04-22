@@ -252,7 +252,7 @@ Lexer::NumberToken()
   }
 
   // adjust the range of this entire Token.
-  w.getRange().getEnd().setColumn(source_.getLocation().getRange().getEnd().getColumn());
+  w.getRange().getEnd().setColumn(w.getRange().getEnd().getColumn() + num.size() - 1);
 
   // dispatch to float or integer conversion.
   if (isFloat)
