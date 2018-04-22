@@ -30,6 +30,7 @@
 #undef HAVE_STDINT_H
 #undef HAVE_UINT64_T
 #include <llvm/ADT/StringRef.h>
+#include <llvm/ADT/DenseSet.h>
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/APInt.h>
 #include <llvm/Support/ErrorHandling.h>
