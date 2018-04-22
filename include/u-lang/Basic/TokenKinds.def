@@ -56,6 +56,7 @@ PUNCTUATOR(pipe, "|", 0)
 PUNCTUATOR(pipepipe, "||", 0)
 
 KEYWORD(fn)
+KEYWORD(let)
 //KEYWORD(if)
 
 TYPE(i8)
