@@ -145,6 +145,18 @@ TEST(Lexer, HandlesSimpleFloatingPointConstant) // NOLINT
   EXPECT_EQ(tok::real_constant, subject.getKind());
 }
 
+TEST(Lexer, HandlesSimpleFloatingPointConstantWithThousandsSeparator) // NOLINT
+{
+  StringSource source{"31_415.62"};
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::real_constant, subject.getKind());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
+
 TEST(Lexer, IntegerDoesNotIncludeLeadingMinus) // NOLINT
 {
   StringSource source{"-42"};
