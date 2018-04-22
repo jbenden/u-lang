@@ -11,8 +11,8 @@ as well as the compilers shown in the table below.
 
 | Compiler Name | Minimum Version |
 |---------------|-----------------|
-| Clang         | 3.8             |
-| GCC           | 3.0             |
+| Clang         | 3.9             |
+| GCC           | 4.9             |
 | ICC           | 2018 update 2   |
 
 ## Project details
