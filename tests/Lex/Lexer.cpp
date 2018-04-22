@@ -275,3 +275,27 @@ TEST(Lexer, HandlesTwoCharacterPunctuator) // NOLINT
 
   EXPECT_EQ(tok::eof, lexer.Lex().getKind());
 }
+
+TEST(Lexer, HandlesSimpleFnDecl) // NOLINT
+{
+  StringSource source{"fn joe"};
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::kw_fn, subject.getKind());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(2, subject.getLocation().getRange().getEnd().getColumn());
+
+  Token subject2 = lexer.Lex();
+
+  EXPECT_EQ(tok::identifier, subject2.getKind());
+  EXPECT_EQ(1, subject2.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(4, subject2.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject2.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(6, subject2.getLocation().getRange().getEnd().getColumn());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
