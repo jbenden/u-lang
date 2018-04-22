@@ -164,7 +164,11 @@ TEST(Lexer, IntegerDoesNotIncludeLeadingMinus) // NOLINT
 
   Token subject1 = lexer.Lex();
 
-  EXPECT_EQ(tok::unknown, subject1.getKind());
+  EXPECT_EQ(tok::minus, subject1.getKind());
+  EXPECT_EQ(1, subject1.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject1.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject1.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(1, subject1.getLocation().getRange().getEnd().getColumn());
 
   Token subject2 = lexer.Lex();
 
@@ -182,7 +186,11 @@ TEST(Lexer, FloatingPointDoesNotIncludeLeadingMinus) // NOLINT
 
   Token subject1 = lexer.Lex();
 
-  EXPECT_EQ(tok::unknown, subject1.getKind());
+  EXPECT_EQ(tok::minus, subject1.getKind());
+  EXPECT_EQ(1, subject1.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject1.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject1.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(1, subject1.getLocation().getRange().getEnd().getColumn());
 
   Token subject2 = lexer.Lex();
 
@@ -191,4 +199,20 @@ TEST(Lexer, FloatingPointDoesNotIncludeLeadingMinus) // NOLINT
   EXPECT_EQ(2, subject2.getLocation().getRange().getBegin().getColumn());
   EXPECT_EQ(1, subject2.getLocation().getRange().getEnd().getLineNumber());
   EXPECT_EQ(7, subject2.getLocation().getRange().getEnd().getColumn());
+}
+
+TEST(Lexer, HandlesTwoCharacterPunctuator) // NOLINT
+{
+  StringSource source{"&&"};
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::ampamp, subject.getKind());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(2, subject.getLocation().getRange().getEnd().getColumn());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
 }

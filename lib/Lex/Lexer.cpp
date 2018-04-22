@@ -276,6 +276,26 @@ Lexer::Lex()
     w = getLocation();
   }
 
+  // Handle punctuators.
+  std::vector<uint32_t> punctuators{ch};
+  tok::TokenKind tt = tok::unknown;
+  while (auto Result = Punctuators_.get(VectorToString(punctuators)))
+  {
+    tt = Result->getKind();
+
+    ch = NextChar();
+    punctuators.push_back(ch);
+  }
+
+  if (tt != tok::unknown)
+  {
+    auto EndCol = w.getRange().getEnd().getColumn();
+
+    w.getRange().getEnd().setColumn(EndCol + punctuators.size() - 2);
+
+    return Token(tt, w);
+  }
+
   // Handle integer and real values.
   if (std::isdigit(ch))
   {

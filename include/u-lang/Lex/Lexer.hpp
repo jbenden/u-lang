@@ -40,12 +40,24 @@
 #include <u-lang/Basic/SourceLocation.hpp>
 #include <u-lang/Lex/Token.hpp>
 #include <u-lang/Basic/Source.hpp>
+#include <u-lang/Basic/PunctuatorTable.hpp>
 #include <u-lang/u.hpp>
 
 #include <cassert>
 
+#include <utf8.h>
+
 namespace u
 {
+
+inline std::string
+VectorToString(std::vector<uint32_t> const& stringVector)
+{
+  std::string utf8Str;
+  utf8::utf32to8(stringVector.begin(), stringVector.end(), std::back_inserter(utf8Str));
+
+  return utf8Str;
+}
 
 class UAPI Lexer
 {
@@ -56,6 +68,7 @@ class UAPI Lexer
   uint32_t curChar_;
   uint32_t nextChar_;
   uint32_t curValid_;
+  PunctuatorTable Punctuators_;
 
 public:
   explicit Lexer(Source& source);
