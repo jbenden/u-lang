@@ -55,6 +55,8 @@ PUNCTUATOR(ampamp, "&&", 0)
 PUNCTUATOR(pipe, "|", 0)
 PUNCTUATOR(pipepipe, "||", 0)
 
+// LCOV_EXCL_START
+
 KEYWORD(fn) // LCOV_EXCL_LINE
 KEYWORD(let) // LCOV_EXCL_LINE
 //KEYWORD(if)
@@ -79,6 +81,8 @@ TYPE(tuple)
 TYPE(list)
 
 TYPE_MODIFIER(ptr)
+
+// LCOV_EXCL_STOP
 
 #undef TYPE_MODIFIER
 #undef TYPE
