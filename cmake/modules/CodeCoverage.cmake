@@ -123,7 +123,7 @@ FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunner _outputname)
                         COMMAND ${LCOV_PATH} --remove ${_outputname}.info 'tests/*' '/usr/*' 'third-party/*' --output-file ${_outputname}.info.cleaned
 
                         # Upload to Coveralls.io
-                        COMMAND coveralls -b ${CMAKE_CURRENT_BINARY_DIR} -i ${CMAKE_SOURCE_DIR}/lib -i ${CMAKE_SOURCE_DIR}/include -y ${CMAKE_SOURCE_DIR}/.coveralls.yml
+                        COMMAND coveralls -b ${CMAKE_CURRENT_BINARY_DIR} -i ${CMAKE_SOURCE_DIR}/lib -i ${CMAKE_SOURCE_DIR}/include --exclude-lines-pattern LCOV_EXCL_LINE -y ${CMAKE_SOURCE_DIR}/.coveralls.yml
                         COMMAND find . -name '*.gcov' -exec rm {} +
 
                         # Create HTML report
