@@ -493,3 +493,35 @@ TEST(Lexer, ParsesMultilineStringLiteral) // NOLINT
 
   EXPECT_EQ(tok::eof, lexer.Lex().getKind());
 }
+
+TEST(Lexer, ParsesComment) // NOLINT
+{
+  StringSource source{"// comment is here\n"};
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::line_comment, subject.getKind());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(18, subject.getLocation().getRange().getEnd().getColumn());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
+
+TEST(Lexer, ParsesCommentWithLeadingSlash) // NOLINT
+{
+  StringSource source{"/// comment is here\n"};
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::line_comment, subject.getKind());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(19, subject.getLocation().getRange().getEnd().getColumn());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}

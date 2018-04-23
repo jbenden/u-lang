@@ -49,6 +49,8 @@ TOK(real_constant)                     // A floating-point constant value.
 TOK(string_constant)                   // A literal string constant value.
 TOK(rune_constant)                     // A single UNICODE character constant value.
 
+TOK(line_comment)                      // A line comment value.
+
 PUNCTUATOR(minus, "-", 0)
 PUNCTUATOR(l_square, "[", 0)
 PUNCTUATOR(r_square, "]", 0)

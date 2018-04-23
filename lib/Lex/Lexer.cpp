@@ -553,6 +553,36 @@ Lexer::Lex()
     w = getLocation();
   }
 
+  // Handle comment line.
+  while (ch == '/')
+  {
+    if (PeekChar() == '/')
+    {
+      NextChar();
+
+      std::vector<uint32_t> comment;
+
+      while ((ch = NextChar()) != '\n')
+      {
+        comment.push_back(ch);
+      }
+
+      NextChar(); // eat the newline
+
+      std::string commentStr;
+      utf8::utf32to8(comment.begin(), comment.end(), std::back_inserter(commentStr));
+
+      auto EndPos = w.getRange().getEnd().getColumn();
+      w.getRange().getEnd().setColumn(EndPos + commentStr.size() + 1);
+
+      return Token(tok::line_comment, w, commentStr);
+    }
+    else
+    {
+      break;
+    }
+  }
+
   // Handle punctuators.
   std::vector<uint32_t> punctuators{ch};
   tok::TokenKind tt = tok::unknown;
