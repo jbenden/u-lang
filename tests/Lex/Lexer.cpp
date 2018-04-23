@@ -23,6 +23,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <u-lang/Basic/TokenKinds.hpp>
 #include <u-lang/Lex/Lexer.hpp>
 #include <u-lang/u.hpp>
 
