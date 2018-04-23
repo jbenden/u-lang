@@ -300,3 +300,196 @@ TEST(Lexer, HandlesSimpleFnDecl) // NOLINT
 
   EXPECT_EQ(tok::eof, lexer.Lex().getKind());
 }
+
+TEST(Lexer, ParsesARune) // NOLINT
+{
+  StringSource source{"'a'"};
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::rune_constant, subject.getKind());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(3, subject.getLocation().getRange().getEnd().getColumn());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
+
+TEST(Lexer, ParsesStringLiteral) // NOLINT
+{
+  StringSource source{"'fn'"};
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::string_constant, subject.getKind());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(4, subject.getLocation().getRange().getEnd().getColumn());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
+
+TEST(Lexer, ParsesDoubleQuoteRune) // NOLINT
+{
+  StringSource source{"'\"'"}; // NOLINT
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::rune_constant, subject.getKind());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(3, subject.getLocation().getRange().getEnd().getColumn());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
+
+TEST(Lexer, ParsesSingleQuoteRune) // NOLINT
+{
+  StringSource source{"\"'\""}; // NOLINT
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::rune_constant, subject.getKind());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(3, subject.getLocation().getRange().getEnd().getColumn());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
+
+TEST(Lexer, ParsesStringLiteralEndingInQuote) // NOLINT
+{
+  StringSource source{"''''a''''"}; // NOLINT
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::string_constant, subject.getKind());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(9, subject.getLocation().getRange().getEnd().getColumn());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
+
+TEST(Lexer, ParsesEscapesInStringLiteral) // NOLINT
+{
+  StringSource source{"'\\\\a\\tb\\rc\\0\\n'"}; // NOLINT
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::string_constant, subject.getKind());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(2, subject.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getEnd().getColumn());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
+
+TEST(Lexer, ParsesHexStringLiteral) // NOLINT
+{
+  StringSource source{"'\\x20'"};
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::rune_constant, subject.getKind());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(3, subject.getLocation().getRange().getEnd().getColumn());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
+
+TEST(Lexer, ParsesUnicodeStringLiteral) // NOLINT
+{
+  StringSource source{"'\\U0020'"};
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::rune_constant, subject.getKind());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(3, subject.getLocation().getRange().getEnd().getColumn());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
+
+TEST(Lexer, ParsesAnyTypeLiteral) // NOLINT
+{
+  StringSource source{"'a\n"};
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::identifier, subject.getKind());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(2, subject.getLocation().getRange().getEnd().getColumn());
+
+  EXPECT_EQ(tok::eol, lexer.Lex().getKind());
+}
+
+TEST(Lexer, ParsesDoubleQuoteLargeStringLiteral) // NOLINT
+{
+  StringSource source{"\"\"\"abcdefghijklmnopqrstuvwxyz\"\"\""}; // NOLINT
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::string_constant, subject.getKind());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(32, subject.getLocation().getRange().getEnd().getColumn());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
+
+TEST(Lexer, ParsesSingleQuoteLargerStringLiteral) // NOLINT
+{
+  StringSource source{"'abcdefghijklmnopqrstuvwxyz'"};
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::string_constant, subject.getKind());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(1, subject.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(28, subject.getLocation().getRange().getEnd().getColumn());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
+
+TEST(Lexer, ParsesMultilineStringLiteral) // NOLINT
+{
+  StringSource source{"'''Hello\n"
+                      "World'''"};
+  Lexer lexer(source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(tok::string_constant, subject.getKind());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getLineNumber());
+  EXPECT_EQ(1, subject.getLocation().getRange().getBegin().getColumn());
+  EXPECT_EQ(2, subject.getLocation().getRange().getEnd().getLineNumber());
+  EXPECT_EQ(8, subject.getLocation().getRange().getEnd().getColumn());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}

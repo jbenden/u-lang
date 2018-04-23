@@ -92,6 +92,8 @@ public:
 protected:
   Token NumberToken();
 
+  Token StringToken(uint32_t quote, bool longString);
+
 private:
   uint32_t NextChar();
 

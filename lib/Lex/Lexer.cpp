@@ -34,7 +34,6 @@
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/APInt.h>
 #include <llvm/Support/ErrorHandling.h>
-
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
@@ -263,6 +262,284 @@ Lexer::NumberToken()
   return ConvertInt(num, w, base);
 }
 
+struct HexCodes
+{
+  uint32_t c;
+  uint32_t v;
+};
+
+static const HexCodes hexCodes[] = {
+  {'0', 0},
+  {'1', 1},
+  {'2', 2},
+  {'3', 3},
+  {'4', 4},
+  {'5', 5},
+  {'6', 6},
+  {'7', 7},
+  {'8', 8},
+  {'9', 9},
+  {'a', 10},
+  {'b', 11},
+  {'c', 12},
+  {'d', 13},
+  {'e', 14},
+  {'f', 15},
+};
+
+static uint32_t
+HexToInt(uint32_t hex)
+{
+  for (auto& i : hexCodes)
+  {
+    if (i.c == uint32_t(tolower(hex)))
+    {
+      return i.v;
+    }
+  }
+
+  llvm_unreachable("unknown hexadecimal digit"); // LCOV_EXCL_LINE
+  return 0;                                      // LCOV_EXCL_LINE
+}
+
+Token
+Lexer::StringToken(uint32_t quote, bool longString)
+{
+  std::vector<uint32_t> str;
+  SourceLocation w = getLocation();
+  uint32_t ch = NextChar();
+  bool addTrailing{true};
+
+  // adjust the starting position, based upon if we have a long string.
+  if (longString)
+  {
+    auto Pos = w.getRange().getBegin().getColumn();
+    w.getRange().getBegin().setColumn(Pos - 2);
+    w.getRange().getEnd().setColumn(Pos - 2);
+  }
+
+  bool bDone = false;
+  while (!bDone)
+  {
+    switch (ch)
+    {
+    default:
+      if (ch == quote)
+      {
+        if (!longString)
+        {
+          bDone = true;
+          break;
+        }
+
+        if (PeekChar() == quote)
+        {
+          ch = NextChar();
+
+          if (PeekChar() == quote)
+          {
+            ch = NextChar();
+
+            if (PeekChar() == quote)
+            {
+              str.push_back(quote);
+              ch = NextChar();
+
+              // adjust the end column position.
+              auto EndLoc = w.getRange().getEnd().getColumn();
+              w.getRange().getEnd().setColumn(EndLoc + 1);
+            }
+
+            // adjust the end column position.
+            auto EndLoc = w.getRange().getEnd().getColumn();
+            w.getRange().getEnd().setColumn(EndLoc + 2);
+
+            bDone = true;
+            break;
+          }
+        }
+      }
+      break;
+
+    case '\\':
+      // escape codes
+      ch = NextChar();
+
+      switch (ch)
+      {
+      case 'n':ch = '\n';
+        break;
+
+      case 'r':ch = '\r';
+        break;
+
+      case 't':ch = '\t';
+        break;
+
+      case '\\':ch = '\\';
+        break;
+
+      case 'x':
+      case 'X':
+      {
+        // two digit hex code
+        ch = NextChar();
+
+        uint32_t value{0};
+        // ch = NextChar();
+        if (isxdigit(ch))
+        {
+          value += HexToInt(ch) * 16;
+        }
+        else
+        {
+          // error
+          throw std::runtime_error("Bad hexadecimal digit encountered");
+        }
+        ch = NextChar();
+        if (isxdigit(ch))
+        {
+          value += HexToInt(ch);
+        }
+        else
+        {
+          // error
+          throw std::runtime_error("Bad hexadecimal digit encountered");
+        }
+
+        ch = value;
+      }
+        break;
+
+      case 'u':
+      case 'U':
+      {
+        // four digit hex code
+        ch = NextChar();
+
+        uint32_t value{0};
+        if (isxdigit(ch))
+        {
+          value += (HexToInt(ch) << 12u);
+        }
+        else
+        {
+          // error
+          throw std::runtime_error("Bad hexadecimal digit encountered");
+        }
+        ch = NextChar();
+        if (isxdigit(ch))
+        {
+          value += (HexToInt(ch) << 8u);
+        }
+        else
+        {
+          // error
+          throw std::runtime_error("Bad hexadecimal digit encountered");
+        }
+        ch = NextChar();
+        if (isxdigit(ch))
+        {
+          value += (HexToInt(ch) << 4u);
+        }
+        else
+        {
+          // error
+          throw std::runtime_error("Bad hexadecimal digit encountered");
+        }
+        ch = NextChar();
+        if (isxdigit(ch))
+        {
+          value += HexToInt(ch);
+        }
+        else
+        {
+          // error
+          throw std::runtime_error("Bad hexadecimal digit encountered");
+        }
+
+        ch = value;
+      }
+        break;
+
+      case '0':ch = '\0';
+        break;
+
+      default:throw std::runtime_error("Bad escape character code");
+      }
+      break;
+    }
+
+    if (bDone)
+    {
+      break;
+    }
+
+    if (!source_)
+    {
+      throw std::runtime_error("Unterminated string");
+    }
+
+    if (ch == '\n')
+    {
+      // adjust for new-line character.
+      w.getRange().getEnd().incrementLineNumber();
+      w.getRange().getEnd().setColumn(1);
+
+      addTrailing = false;
+    }
+    else
+    {
+      // adjust the end column position.
+      auto EndLoc = w.getRange().getEnd().getColumn();
+      w.getRange().getEnd().setColumn(EndLoc + 1);
+    }
+
+    str.push_back(ch);
+    ch = NextChar();
+
+    // Handling of ANY types...
+    if (quote == '\'' && str.size() == 1 && ch != '\''
+      && (ch == ')' || ch == ']' || ch == ' ' || ch == ',' || ch == '\t' || ch == '\n'))
+    {
+      str.insert(str.begin(), (uint32_t) '\'');
+
+      std::string utf8Str;
+      utf8::utf32to8(str.begin(), str.end(), std::back_inserter(utf8Str));
+
+      return Token(tok::identifier, w, utf8Str);
+    }
+  }
+
+  if (addTrailing || w.getRange().getEnd().getColumn() == 0)
+  {
+    // adjust ending position, based on the length of the original long string value.
+    if (longString)
+    {
+      auto EndLoc = w.getRange().getEnd().getColumn();
+      w.getRange().getEnd().setColumn(EndLoc + 3);
+    }
+    else
+    {
+      auto EndLoc = w.getRange().getEnd().getColumn();
+      w.getRange().getEnd().setColumn(EndLoc + 1);
+    }
+  }
+
+  NextChar();
+
+  if (str.size() == 1)
+  {
+    // Handle a single character; ie: a Rune
+    return Token(tok::rune_constant, w, llvm::APInt{32, (uint64_t) str[0], false});
+  }
+
+  std::string utf8Str;
+  utf8::utf32to8(str.begin(), str.end(), std::back_inserter(utf8Str));
+
+  return Token(tok::string_constant, w, utf8Str);
+}
+
 Token
 Lexer::Lex()
 {
@@ -294,6 +571,48 @@ Lexer::Lex()
     w.getRange().getEnd().setColumn(EndCol + punctuators.size() - 2);
 
     return Token(tt, w);
+  }
+
+  // Handle multi-character tokens; the difficult ones.
+  switch (ch)
+  {
+  default:break;
+
+  case '\'':
+    if (PeekChar() == '\'')
+    {
+      NextChar();
+
+      if (PeekChar() == '\'')
+      {
+        NextChar();
+
+        // parse a long string.
+        return StringToken('\'', true);
+      }
+    }
+    break;
+
+  case '\"':
+    if (PeekChar() == '\"')
+    {
+      NextChar();
+
+      if (PeekChar() == '\"')
+      {
+        NextChar();
+
+        // parse a long string.
+        return StringToken('\"', true);
+      }
+    }
+    break;
+  }
+
+  // Handle normal-case quoted strings.
+  if (ch == '\'' || ch == '"')
+  {
+    return StringToken(ch, false);
   }
 
   // Handle identifiers.
