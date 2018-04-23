@@ -55,8 +55,8 @@ PUNCTUATOR(ampamp, "&&", 0)
 PUNCTUATOR(pipe, "|", 0)
 PUNCTUATOR(pipepipe, "||", 0)
 
-KEYWORD(fn)
-KEYWORD(let)
+KEYWORD(fn) // LCOV_EXCL_LINE
+KEYWORD(let) // LCOV_EXCL_LINE
 //KEYWORD(if)
 
 TYPE(i8)
