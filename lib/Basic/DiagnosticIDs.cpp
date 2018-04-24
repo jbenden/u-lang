@@ -57,7 +57,7 @@ DiagnosticMapping::get(DiagnosticID Search)
     return Result->second;
   }
 
-  return llvm::None;
+  return llvm::None; // LCOV_EXCL_LINE
 }
 
 void DiagnosticMapping::AddDiagnostics()
