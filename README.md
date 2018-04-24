@@ -1,5 +1,6 @@
 # The U Programming Language
 
+[![license](https://img.shields.io/github/license/jbenden/u-lang.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![Build Status](https://travis-ci.org/jbenden/u-lang.svg?branch=master)](https://travis-ci.org/jbenden/u-lang)
 [![Coverage Status](https://coveralls.io/repos/github/jbenden/u-lang/badge.svg?branch=master)](https://coveralls.io/github/jbenden/u-lang?branch=master)
 
