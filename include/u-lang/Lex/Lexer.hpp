@@ -39,11 +39,13 @@
 
 #include <glog/logging.h>
 
+#include <u-lang/Basic/Diagnostic.hpp>
 #include <u-lang/Basic/SourceLocation.hpp>
 #include <u-lang/Lex/Token.hpp>
 #include <u-lang/Basic/Source.hpp>
 #include <u-lang/Basic/PunctuatorTable.hpp>
 #include <u-lang/Basic/IdentifierTable.hpp>
+#include <u-lang/Basic/DiagnosticIDs.hpp>
 #include <u-lang/u.hpp>
 
 #include <cassert>
@@ -64,6 +66,7 @@ VectorToString(std::vector<uint32_t> const& stringVector)
 
 class UAPI Lexer
 {
+  std::shared_ptr<DiagnosticEngine> Diags;
   Source& source_;
   std::string fileName_;
   std::string filePath_;
@@ -77,6 +80,8 @@ class UAPI Lexer
 public:
   explicit Lexer(Source& source);
 
+  explicit Lexer(std::shared_ptr<DiagnosticEngine> D, Source& source);
+
   Lexer(Lexer const&) = delete;
 
   Lexer(Lexer&&) = delete;
@@ -84,6 +89,8 @@ public:
   Lexer& operator=(Lexer const&) = delete;
 
   Lexer& operator=(Lexer&&) = delete;
+
+  std::shared_ptr<DiagnosticEngine> getDiags() { return Diags; }
 
   Token Lex();
 
@@ -93,6 +100,11 @@ protected:
   Token NumberToken();
 
   Token StringToken(uint32_t quote, bool longString);
+
+  DiagnosticBuilder Diag(SourceLocation Loc, diag::DiagnosticID DiagID)
+  {
+    return Diags->Report(Loc, DiagID); // NOLINT
+  }
 
 private:
   uint32_t NextChar();

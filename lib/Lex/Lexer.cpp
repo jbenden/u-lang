@@ -60,7 +60,18 @@ IsSpace(uint32_t ch)
 }
 
 Lexer::Lexer(u::Source& source)
-  : source_{source}
+  : Diags{std::make_shared<DiagnosticEngine>()}
+  , source_{source}
+  , fileName_{source_.getLocation().getFileName()}
+  , filePath_{source_.getLocation().getFilePath()}
+  , sourceRange_{source_.getLocation().getRange()}
+  , curValid_{0}
+{
+}
+
+Lexer::Lexer(std::shared_ptr<DiagnosticEngine> D, u::Source& source) // NOLINT
+  : Diags{D} // NOLINT
+  , source_{source}
   , fileName_{source_.getLocation().getFileName()}
   , filePath_{source_.getLocation().getFilePath()}
   , sourceRange_{source_.getLocation().getRange()}
@@ -394,7 +405,7 @@ Lexer::StringToken(uint32_t quote, bool longString)
         else
         {
           // error
-          throw std::runtime_error("Bad hexadecimal digit encountered");
+          Diag(w, diag::bad_hex_digit); // LCOV_EXCL_LINE
         }
         ch = NextChar();
         if (isxdigit(ch))
@@ -404,7 +415,7 @@ Lexer::StringToken(uint32_t quote, bool longString)
         else
         {
           // error
-          throw std::runtime_error("Bad hexadecimal digit encountered");
+          Diag(w, diag::bad_hex_digit); // LCOV_EXCL_LINE
         }
 
         ch = value;
@@ -425,7 +436,7 @@ Lexer::StringToken(uint32_t quote, bool longString)
         else
         {
           // error
-          throw std::runtime_error("Bad hexadecimal digit encountered");
+          Diag(w, diag::bad_hex_digit); // LCOV_EXCL_LINE
         }
         ch = NextChar();
         if (isxdigit(ch))
@@ -435,7 +446,7 @@ Lexer::StringToken(uint32_t quote, bool longString)
         else
         {
           // error
-          throw std::runtime_error("Bad hexadecimal digit encountered");
+          Diag(w, diag::bad_hex_digit); // LCOV_EXCL_LINE
         }
         ch = NextChar();
         if (isxdigit(ch))
@@ -445,7 +456,7 @@ Lexer::StringToken(uint32_t quote, bool longString)
         else
         {
           // error
-          throw std::runtime_error("Bad hexadecimal digit encountered");
+          Diag(w, diag::bad_hex_digit); // LCOV_EXCL_LINE
         }
         ch = NextChar();
         if (isxdigit(ch))
@@ -455,7 +466,7 @@ Lexer::StringToken(uint32_t quote, bool longString)
         else
         {
           // error
-          throw std::runtime_error("Bad hexadecimal digit encountered");
+          Diag(w, diag::bad_hex_digit); // LCOV_EXCL_LINE
         }
 
         ch = value;
@@ -465,7 +476,7 @@ Lexer::StringToken(uint32_t quote, bool longString)
       case '0':ch = '\0';
         break;
 
-      default:throw std::runtime_error("Bad escape character code");
+      default:Diag(w, diag::bad_escape_sequence); // LCOV_EXCL_LINE
       }
       break;
     }
@@ -477,7 +488,9 @@ Lexer::StringToken(uint32_t quote, bool longString)
 
     if (!source_)
     {
-      throw std::runtime_error("Unterminated string");
+      Diag(w, diag::unterminated_string);
+      bDone = true;
+      continue;
     }
 
     if (ch == '\n')
@@ -579,7 +592,7 @@ Lexer::Lex()
     }
     else
     {
-      break;
+      break; // LCOV_EXCL_LINE
     }
   }
 

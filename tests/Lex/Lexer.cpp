@@ -525,3 +525,51 @@ TEST(Lexer, ParsesCommentWithLeadingSlash) // NOLINT
 
   EXPECT_EQ(tok::eof, lexer.Lex().getKind());
 }
+
+TEST(Lexer, ExpectUnterminatedString) // NOLINT
+{
+  StringSource source{"'"};
+
+  std::shared_ptr<DiagnosticConsumer> diagClient = std::make_shared<DiagnosticConsumer>();
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  Lexer lexer(diagEngine, source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(1, lexer.getDiags()->getClient()->getNumErrors());
+  EXPECT_EQ(1, diagClient->getNumErrors());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
+
+TEST(Lexer, ExpectBadHexDigit) // NOLINT
+{
+  StringSource source{"'\\xg0'"};
+
+  std::shared_ptr<DiagnosticConsumer> diagClient = std::make_shared<DiagnosticConsumer>();
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  Lexer lexer(diagEngine, source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_EQ(1, lexer.getDiags()->getClient()->getNumWarnings());
+  EXPECT_EQ(1, diagClient->getNumWarnings());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
+
+TEST(Lexer, WarningsAreIgnored) // NOLINT
+{
+  StringSource source{"'\\xg0'"};
+
+  std::shared_ptr<DiagnosticConsumer> diagClient = std::make_shared<IgnoringDiagConsumer>();
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  Lexer lexer(diagEngine, source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_NE(1u, lexer.getDiags()->getClient()->getNumWarnings());
+  EXPECT_NE(1u, diagClient->getNumWarnings());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
