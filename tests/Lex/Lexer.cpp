@@ -526,38 +526,49 @@ TEST(Lexer, ParsesCommentWithLeadingSlash) // NOLINT
   EXPECT_EQ(tok::eof, lexer.Lex().getKind());
 }
 
-TEST(Lexer, ExpectUnterminatedString) // NOLINT
+class LexerTest : public ::testing::Test
 {
-  StringSource source{"'"};
+protected:
+  LexerTest& SetFixture(const char* str)
+  {
+    source = std::make_shared<StringSource>(str);
+    sourceManager = std::make_shared<SourceManager>();
+    diagClient = std::make_shared<DiagnosticConsumer>();
+    diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+    lexer = std::make_shared<Lexer>(sourceManager, diagEngine, *source);
 
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<DiagnosticConsumer> diagClient = std::make_shared<DiagnosticConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
-  Lexer lexer(diagEngine, source);
+    return *this;
+  }
 
-  Token subject = lexer.Lex();
+  std::shared_ptr<StringSource> source;
+  std::shared_ptr<SourceManager> sourceManager;
+  std::shared_ptr<DiagnosticConsumer> diagClient;
+  std::shared_ptr<DiagnosticEngine> diagEngine;
+  std::shared_ptr<Lexer> lexer;
+};
 
-  EXPECT_EQ(1, lexer.getDiags()->getClient()->getNumErrors());
+TEST_F(LexerTest, ExpectUnterminatedString) // NOLINT
+{
+  SetFixture("'");
+
+  Token subject = lexer->Lex();
+
+  EXPECT_EQ(1, lexer->getDiags()->getClient()->getNumErrors());
   EXPECT_EQ(1, diagClient->getNumErrors());
 
-  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+  EXPECT_EQ(tok::eof, lexer->Lex().getKind());
 }
 
-TEST(Lexer, ExpectBadHexDigit) // NOLINT
+TEST_F(LexerTest, ExpectBadHexDigit) // NOLINT
 {
-  StringSource source{"'\\xg0'"};
+  SetFixture("'\\xg0'");
 
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<DiagnosticConsumer> diagClient = std::make_shared<DiagnosticConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
-  Lexer lexer(diagEngine, source);
+  Token subject = lexer->Lex();
 
-  Token subject = lexer.Lex();
-
-  EXPECT_EQ(1, lexer.getDiags()->getClient()->getNumWarnings());
+  EXPECT_EQ(1, lexer->getDiags()->getClient()->getNumWarnings());
   EXPECT_EQ(1, diagClient->getNumWarnings());
 
-  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+  EXPECT_EQ(tok::eof, lexer->Lex().getKind());
 }
 
 TEST(Lexer, WarningsAreIgnored) // NOLINT
@@ -577,21 +588,13 @@ TEST(Lexer, WarningsAreIgnored) // NOLINT
   EXPECT_EQ(tok::eof, lexer.Lex().getKind());
 }
 
-TEST(Lexer, SourceManagerContainsOurSource) // NOLINT
+TEST_F(LexerTest, SourceManagerContainsOurSource) // NOLINT
 {
-  StringSource source{"'\\xg0'"};
+  SetFixture("'\\xg0'");
 
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<DiagnosticConsumer> diagClient = std::make_shared<IgnoringDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
-  Lexer lexer(sourceManager, diagEngine, source);
+  (void) lexer->Lex();
 
-  Token subject = lexer.Lex();
-
-  EXPECT_NE(1u, lexer.getDiags()->getClient()->getNumWarnings());
-  EXPECT_NE(1u, diagClient->getNumWarnings());
-
-  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+  EXPECT_EQ(tok::eof, lexer->Lex().getKind());
 
   auto& FI = sourceManager->getOrInsertFile("top-level.u", ".");
   EXPECT_GE(FI.getLine(1).size(), 0u);

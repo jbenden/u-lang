@@ -66,13 +66,28 @@ private:
   }
 };
 
-TEST(DiagnosticEngine, ExpectFormattedUnterminatedString) // NOLINT
+class DiagnosticEngineTest : public ::testing::Test
 {
-  StringSource source{"'"};
+protected:
+  DiagnosticEngineTest& SetFixture(const char* str)
+  {
+    source = std::make_shared<StringSource>(str);
+    sourceManager = std::make_shared<SourceManager>();
+    diagClient = std::make_shared<RecordingDiagConsumer>();
+    diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+    return *this;
+  }
+
+  std::shared_ptr<StringSource> source;
+  std::shared_ptr<SourceManager> sourceManager;
+  std::shared_ptr<RecordingDiagConsumer> diagClient;
+  std::shared_ptr<DiagnosticEngine> diagEngine;
+};
+
+TEST_F(DiagnosticEngineTest, ExpectFormattedUnterminatedString) // NOLINT
+{
+  SetFixture("'");
 
   diagEngine->Report(diag::unterminated_string);
 
@@ -83,13 +98,9 @@ TEST(DiagnosticEngine, ExpectFormattedUnterminatedString) // NOLINT
                diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedBadHexSequenceAsChar) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedBadHexSequenceAsChar) // NOLINT
 {
-  StringSource source{"'\\xp0'"};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("'\\xp0'");
 
   diagEngine->Report(diag::bad_hex_digit) << "p";
 
@@ -100,13 +111,9 @@ TEST(DiagnosticEngine, ExpectFormattedBadHexSequenceAsChar) // NOLINT
                diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedBadHexSequenceAsNullChar) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedBadHexSequenceAsNullChar) // NOLINT
 {
-  StringSource source{"'\\xp0'"};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("'\\xp0'");
 
   diagEngine->Report(diag::bad_hex_digit) << (const char*) nullptr;
 
@@ -117,13 +124,9 @@ TEST(DiagnosticEngine, ExpectFormattedBadHexSequenceAsNullChar) // NOLINT
                diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedBadHexSequenceAsStdString) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedBadHexSequenceAsStdString) // NOLINT
 {
-  StringSource source{"'\\xp0'"};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("'\\xp0'");
 
   diagEngine->Report(diag::bad_hex_digit) << std::string("p");
 
@@ -134,13 +137,9 @@ TEST(DiagnosticEngine, ExpectFormattedBadHexSequenceAsStdString) // NOLINT
                diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedSInt) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedSInt) // NOLINT
 {
-  StringSource source{""};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("");
 
   diagEngine->Report(diag::unit_test_0001) << (int) 0;
 
@@ -150,13 +149,9 @@ TEST(DiagnosticEngine, ExpectFormattedSInt) // NOLINT
   EXPECT_STREQ("I have 0 sense.", diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedSIntOne) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedSIntOne) // NOLINT
 {
-  StringSource source{""};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("");
 
   diagEngine->Report(diag::unit_test_0002) << (int) 1;
 
@@ -166,13 +161,9 @@ TEST(DiagnosticEngine, ExpectFormattedSIntOne) // NOLINT
   EXPECT_STREQ("I have 1 sense.", diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedSIntTwo) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedSIntTwo) // NOLINT
 {
-  StringSource source{""};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("");
 
   diagEngine->Report(diag::unit_test_0002) << (int) 2;
 
@@ -182,13 +173,9 @@ TEST(DiagnosticEngine, ExpectFormattedSIntTwo) // NOLINT
   EXPECT_STREQ("I have 2 senses.", diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedSIntOrdinal) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedSIntOrdinal) // NOLINT
 {
-  StringSource source{""};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("");
 
   diagEngine->Report(diag::unit_test_0003) << (int) 3;
 
@@ -198,13 +185,9 @@ TEST(DiagnosticEngine, ExpectFormattedSIntOrdinal) // NOLINT
   EXPECT_STREQ("The 3rd sense.", diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedUInt) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedUInt) // NOLINT
 {
-  StringSource source{""};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("");
 
   diagEngine->Report(diag::unit_test_0004) << (unsigned) 0;
 
@@ -214,13 +197,9 @@ TEST(DiagnosticEngine, ExpectFormattedUInt) // NOLINT
   EXPECT_STREQ("I have 0 sense.", diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedUIntOne) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedUIntOne) // NOLINT
 {
-  StringSource source{""};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("");
 
   diagEngine->Report(diag::unit_test_0005) << (unsigned) 1;
 
@@ -230,13 +209,9 @@ TEST(DiagnosticEngine, ExpectFormattedUIntOne) // NOLINT
   EXPECT_STREQ("I have 1 sense.", diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedUIntTwo) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedUIntTwo) // NOLINT
 {
-  StringSource source{""};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("");
 
   diagEngine->Report(diag::unit_test_0005) << (unsigned) 2;
 
@@ -246,13 +221,9 @@ TEST(DiagnosticEngine, ExpectFormattedUIntTwo) // NOLINT
   EXPECT_STREQ("I have 2 senses.", diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedUIntOrdinal) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedUIntOrdinal) // NOLINT
 {
-  StringSource source{""};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("");
 
   diagEngine->Report(diag::unit_test_0006) << (unsigned) 3;
 
@@ -262,13 +233,9 @@ TEST(DiagnosticEngine, ExpectFormattedUIntOrdinal) // NOLINT
   EXPECT_STREQ("The 3rd sense.", diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedPunctuatorKeyword) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedPunctuatorKeyword) // NOLINT
 {
-  StringSource source{""};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("");
 
   diagEngine->Report(diag::unit_test_0007) << tok::minus;
 
@@ -278,13 +245,9 @@ TEST(DiagnosticEngine, ExpectFormattedPunctuatorKeyword) // NOLINT
   EXPECT_STREQ("Token '-'.", diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedKeyword) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedKeyword) // NOLINT
 {
-  StringSource source{""};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("");
 
   diagEngine->Report(diag::unit_test_0007) << tok::kw_fn;
 
@@ -294,13 +257,9 @@ TEST(DiagnosticEngine, ExpectFormattedKeyword) // NOLINT
   EXPECT_STREQ("Token fn.", diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedTokenName) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedTokenName) // NOLINT
 {
-  StringSource source{""};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("");
 
   diagEngine->Report(diag::unit_test_0007) << tok::identifier;
 
@@ -310,13 +269,9 @@ TEST(DiagnosticEngine, ExpectFormattedTokenName) // NOLINT
   EXPECT_STREQ("Token <identifier>.", diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedPercentSign) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedPercentSign) // NOLINT
 {
-  StringSource source{""};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("");
 
   diagEngine->Report(diag::unit_test_0008);
 
@@ -326,13 +281,9 @@ TEST(DiagnosticEngine, ExpectFormattedPercentSign) // NOLINT
   EXPECT_STREQ("%.", diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedVerbatim) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedVerbatim) // NOLINT
 {
-  StringSource source{""};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("");
 
   diagEngine->Report(diag::unit_test_0009) << std::string("Hello world.");
 
@@ -342,13 +293,9 @@ TEST(DiagnosticEngine, ExpectFormattedVerbatim) // NOLINT
   EXPECT_STREQ("Hello world.", diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedSIntSelect) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedSIntSelect) // NOLINT
 {
-  StringSource source{""};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("");
 
   diagEngine->Report(diag::unit_test_0010) << (int) 1;
 
@@ -358,13 +305,9 @@ TEST(DiagnosticEngine, ExpectFormattedSIntSelect) // NOLINT
   EXPECT_STREQ("b", diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, ExpectFormattedUIntSelect) // NOLINT
+TEST_F(DiagnosticEngineTest, ExpectFormattedUIntSelect) // NOLINT
 {
-  StringSource source{""};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("");
 
   diagEngine->Report(diag::unit_test_0010) << (unsigned) 1;
 
@@ -374,13 +317,9 @@ TEST(DiagnosticEngine, ExpectFormattedUIntSelect) // NOLINT
   EXPECT_STREQ("b", diagClient->D[0].second.c_str());
 }
 
-TEST(DiagnosticEngine, HandlesFormattingSelectWithEscape) // NOLINT
+TEST_F(DiagnosticEngineTest, HandlesFormattingSelectWithEscape) // NOLINT
 {
-  StringSource source{""};
-
-  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
-  std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  SetFixture("");
 
   diagEngine->Report(diag::unit_test_0011) << (unsigned) 1;
 
