@@ -41,6 +41,7 @@
 
 #include <u-lang/Basic/Diagnostic.hpp>
 #include <u-lang/Basic/SourceLocation.hpp>
+#include <u-lang/Basic/SourceManager.hpp>
 #include <u-lang/Lex/Token.hpp>
 #include <u-lang/Basic/Source.hpp>
 #include <u-lang/Basic/PunctuatorTable.hpp>
@@ -66,6 +67,7 @@ VectorToString(std::vector<uint32_t> const& stringVector)
 
 class UAPI Lexer
 {
+  std::shared_ptr<SourceManager> SM;
   std::shared_ptr<DiagnosticEngine> Diags;
   Source& source_;
   std::string fileName_;
@@ -82,6 +84,8 @@ public:
 
   explicit Lexer(std::shared_ptr<DiagnosticEngine> D, Source& source);
 
+  explicit Lexer(std::shared_ptr<SourceManager> M, std::shared_ptr<DiagnosticEngine> D, Source& source);
+
   Lexer(Lexer const&) = delete;
 
   Lexer(Lexer&&) = delete;
@@ -89,6 +93,8 @@ public:
   Lexer& operator=(Lexer const&) = delete;
 
   Lexer& operator=(Lexer&&) = delete;
+
+  std::shared_ptr<SourceManager> getSourceManager() { return SM; }
 
   std::shared_ptr<DiagnosticEngine> getDiags() { return Diags; }
 

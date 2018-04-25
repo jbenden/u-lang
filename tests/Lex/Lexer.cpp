@@ -530,8 +530,9 @@ TEST(Lexer, ExpectUnterminatedString) // NOLINT
 {
   StringSource source{"'"};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<DiagnosticConsumer> diagClient = std::make_shared<DiagnosticConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
   Lexer lexer(diagEngine, source);
 
   Token subject = lexer.Lex();
@@ -546,8 +547,9 @@ TEST(Lexer, ExpectBadHexDigit) // NOLINT
 {
   StringSource source{"'\\xg0'"};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<DiagnosticConsumer> diagClient = std::make_shared<DiagnosticConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
   Lexer lexer(diagEngine, source);
 
   Token subject = lexer.Lex();
@@ -562,8 +564,9 @@ TEST(Lexer, WarningsAreIgnored) // NOLINT
 {
   StringSource source{"'\\xg0'"};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<DiagnosticConsumer> diagClient = std::make_shared<IgnoringDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
   Lexer lexer(diagEngine, source);
 
   Token subject = lexer.Lex();
@@ -572,4 +575,26 @@ TEST(Lexer, WarningsAreIgnored) // NOLINT
   EXPECT_NE(1u, diagClient->getNumWarnings());
 
   EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+}
+
+TEST(Lexer, SourceManagerContainsOurSource) // NOLINT
+{
+  StringSource source{"'\\xg0'"};
+
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
+  std::shared_ptr<DiagnosticConsumer> diagClient = std::make_shared<IgnoringDiagConsumer>();
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
+  Lexer lexer(sourceManager, diagEngine, source);
+
+  Token subject = lexer.Lex();
+
+  EXPECT_NE(1u, lexer.getDiags()->getClient()->getNumWarnings());
+  EXPECT_NE(1u, diagClient->getNumWarnings());
+
+  EXPECT_EQ(tok::eof, lexer.Lex().getKind());
+
+  auto& FI = sourceManager->getOrInsertFile("top-level.u", ".");
+  EXPECT_GE(FI.getLine(1).size(), 0u);
+
+  EXPECT_STREQ("'\\xg0'", FI.getLine(1).c_str());
 }

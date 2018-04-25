@@ -33,8 +33,9 @@ TEST(DiagnosticEngine, ExpectUnterminatedString) // NOLINT
 {
   StringSource source{"'"};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<DiagnosticConsumer> diagClient = std::make_shared<DiagnosticConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unterminated_string);
 
@@ -69,8 +70,9 @@ TEST(DiagnosticEngine, ExpectFormattedUnterminatedString) // NOLINT
 {
   StringSource source{"'"};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unterminated_string);
 
@@ -85,8 +87,9 @@ TEST(DiagnosticEngine, ExpectFormattedBadHexSequenceAsChar) // NOLINT
 {
   StringSource source{"'\\xp0'"};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::bad_hex_digit) << "p";
 
@@ -101,8 +104,9 @@ TEST(DiagnosticEngine, ExpectFormattedBadHexSequenceAsNullChar) // NOLINT
 {
   StringSource source{"'\\xp0'"};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::bad_hex_digit) << (const char*) nullptr;
 
@@ -117,8 +121,9 @@ TEST(DiagnosticEngine, ExpectFormattedBadHexSequenceAsStdString) // NOLINT
 {
   StringSource source{"'\\xp0'"};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::bad_hex_digit) << std::string("p");
 
@@ -133,8 +138,9 @@ TEST(DiagnosticEngine, ExpectFormattedSInt) // NOLINT
 {
   StringSource source{""};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unit_test_0001) << (int) 0;
 
@@ -148,8 +154,9 @@ TEST(DiagnosticEngine, ExpectFormattedSIntOne) // NOLINT
 {
   StringSource source{""};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unit_test_0002) << (int) 1;
 
@@ -163,8 +170,9 @@ TEST(DiagnosticEngine, ExpectFormattedSIntTwo) // NOLINT
 {
   StringSource source{""};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unit_test_0002) << (int) 2;
 
@@ -178,8 +186,9 @@ TEST(DiagnosticEngine, ExpectFormattedSIntOrdinal) // NOLINT
 {
   StringSource source{""};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unit_test_0003) << (int) 3;
 
@@ -193,8 +202,9 @@ TEST(DiagnosticEngine, ExpectFormattedUInt) // NOLINT
 {
   StringSource source{""};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unit_test_0004) << (unsigned) 0;
 
@@ -208,8 +218,9 @@ TEST(DiagnosticEngine, ExpectFormattedUIntOne) // NOLINT
 {
   StringSource source{""};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unit_test_0005) << (unsigned) 1;
 
@@ -223,8 +234,9 @@ TEST(DiagnosticEngine, ExpectFormattedUIntTwo) // NOLINT
 {
   StringSource source{""};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unit_test_0005) << (unsigned) 2;
 
@@ -238,8 +250,9 @@ TEST(DiagnosticEngine, ExpectFormattedUIntOrdinal) // NOLINT
 {
   StringSource source{""};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unit_test_0006) << (unsigned) 3;
 
@@ -253,8 +266,9 @@ TEST(DiagnosticEngine, ExpectFormattedPunctuatorKeyword) // NOLINT
 {
   StringSource source{""};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unit_test_0007) << tok::minus;
 
@@ -268,8 +282,9 @@ TEST(DiagnosticEngine, ExpectFormattedKeyword) // NOLINT
 {
   StringSource source{""};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unit_test_0007) << tok::kw_fn;
 
@@ -283,8 +298,9 @@ TEST(DiagnosticEngine, ExpectFormattedTokenName) // NOLINT
 {
   StringSource source{""};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unit_test_0007) << tok::identifier;
 
@@ -298,8 +314,9 @@ TEST(DiagnosticEngine, ExpectFormattedPercentSign) // NOLINT
 {
   StringSource source{""};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unit_test_0008);
 
@@ -313,8 +330,9 @@ TEST(DiagnosticEngine, ExpectFormattedVerbatim) // NOLINT
 {
   StringSource source{""};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unit_test_0009) << std::string("Hello world.");
 
@@ -328,8 +346,9 @@ TEST(DiagnosticEngine, ExpectFormattedSIntSelect) // NOLINT
 {
   StringSource source{""};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unit_test_0010) << (int) 1;
 
@@ -343,8 +362,9 @@ TEST(DiagnosticEngine, ExpectFormattedUIntSelect) // NOLINT
 {
   StringSource source{""};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unit_test_0010) << (unsigned) 1;
 
@@ -358,8 +378,9 @@ TEST(DiagnosticEngine, HandlesFormattingSelectWithEscape) // NOLINT
 {
   StringSource source{""};
 
+  std::shared_ptr<SourceManager> sourceManager = std::make_shared<SourceManager>();
   std::shared_ptr<RecordingDiagConsumer> diagClient = std::make_shared<RecordingDiagConsumer>();
-  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(diagClient);
+  std::shared_ptr<DiagnosticEngine> diagEngine = std::make_shared<DiagnosticEngine>(sourceManager, diagClient);
 
   diagEngine->Report(diag::unit_test_0011) << (unsigned) 1;
 

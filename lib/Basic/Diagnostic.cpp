@@ -53,8 +53,10 @@
 
 using namespace u;
 
-DiagnosticEngine::DiagnosticEngine(std::shared_ptr<u::DiagnosticConsumer> consumer) // NOLINT
-  : DC{consumer}                                                                    // NOLINT
+DiagnosticEngine::DiagnosticEngine(std::shared_ptr<SourceManager> M,                // NOLINT
+                                   std::shared_ptr<u::DiagnosticConsumer> consumer) // NOLINT
+  : SM{M}
+  , DC{consumer}                                                                    // NOLINT
   , Mappings{std::make_unique<diag::DiagnosticMapping>()}
 {
   Reset();

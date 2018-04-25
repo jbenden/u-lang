@@ -43,6 +43,7 @@
 
 #include <u-lang/Basic/DiagnosticIDs.hpp>
 #include <u-lang/Basic/SourceLocation.hpp>
+#include <u-lang/Basic/SourceManager.hpp>
 #include <u-lang/u.hpp>
 
 #include <cassert>
@@ -58,6 +59,7 @@ class DiagnosticConsumer;
 
 class UAPI DiagnosticEngine
 {
+  std::shared_ptr<SourceManager> SM;
   std::shared_ptr<DiagnosticConsumer> DC;
   std::unique_ptr<diag::DiagnosticMapping> Mappings;
 
@@ -76,13 +78,15 @@ public:
   typedef std::pair<ArgumentKind, intptr_t> ArgumentValue;
 
 public:
-  explicit DiagnosticEngine(std::shared_ptr<DiagnosticConsumer> consumer = nullptr);
+  explicit DiagnosticEngine(std::shared_ptr<SourceManager> M, std::shared_ptr<DiagnosticConsumer> consumer = nullptr);
 
   inline DiagnosticBuilder Report(SourceLocation Loc, diag::DiagnosticID DiagID);
 
   inline DiagnosticBuilder Report(diag::DiagnosticID DiagID);
 
   void Reset();
+
+  std::shared_ptr<SourceManager> getSourceManager() { return SM; }
 
   std::shared_ptr<DiagnosticConsumer> getClient() { return DC; }
 

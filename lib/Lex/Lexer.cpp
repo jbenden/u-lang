@@ -60,7 +60,8 @@ IsSpace(uint32_t ch)
 }
 
 Lexer::Lexer(u::Source& source)
-  : Diags{std::make_shared<DiagnosticEngine>()}
+  : SM{std::make_shared<SourceManager>()}
+  , Diags{std::make_shared<DiagnosticEngine>(SM)}
   , source_{source}
   , fileName_{source_.getLocation().getFileName()}
   , filePath_{source_.getLocation().getFilePath()}
@@ -70,7 +71,19 @@ Lexer::Lexer(u::Source& source)
 }
 
 Lexer::Lexer(std::shared_ptr<DiagnosticEngine> D, u::Source& source) // NOLINT
-  : Diags{D} // NOLINT
+  : SM{D->getSourceManager()}
+  , Diags{D} // NOLINT
+  , source_{source}
+  , fileName_{source_.getLocation().getFileName()}
+  , filePath_{source_.getLocation().getFilePath()}
+  , sourceRange_{source_.getLocation().getRange()}
+  , curValid_{0}
+{
+}
+
+Lexer::Lexer(std::shared_ptr<SourceManager> M, std::shared_ptr<DiagnosticEngine> D, u::Source& source) // NOLINT
+  : SM{M} // NOLINT
+  , Diags{D} // NOLINT
   , source_{source}
   , fileName_{source_.getLocation().getFileName()}
   , filePath_{source_.getLocation().getFilePath()}
@@ -127,7 +140,9 @@ Lexer::GetChar()
   {
     uint32_t ch = source_.Get();
 
-    // insert character into the SourceManager entry for this file...
+    // insert character into the SourceManager for this file.
+    auto& FI = SM->getOrInsertFile(fileName_, filePath_);
+    FI.AddCharacter(source_.getLocation().getRange().getBegin().getLineNumber(), ch);
 
     return ch;
   }
