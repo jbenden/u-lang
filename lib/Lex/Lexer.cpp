@@ -158,7 +158,7 @@ Lexer::ConvertFloat(std::string& num, const SourceLocation& w)
   auto Result = v.convertFromString(num, llvm::APFloat::rmTowardZero);
 
   // LCOV_EXCL_START
-  if (Result == llvm::APFloatBase::opStatus::opOverflow)
+  if (Result == llvm::APFloat::opOverflow)
   {
     Diag(w, diag::apreal_overflow) << num;
   }
