@@ -150,11 +150,27 @@ Lexer::GetChar()
   return 0;
 }
 
-static Token
-ConvertFloat(std::string& num, const SourceLocation& w)
+Token
+Lexer::ConvertFloat(std::string& num, const SourceLocation& w)
 {
   llvm::APFloat v{-1.0};
-  v.convertFromString(num, llvm::APFloat::rmTowardZero);
+
+  auto Result = v.convertFromString(num, llvm::APFloat::rmTowardZero);
+
+  // LCOV_EXCL_START
+  if (Result == llvm::APFloatBase::opStatus::opOverflow)
+  {
+    Diag(w, diag::apreal_overflow) << num;
+  }
+  else if (Result == llvm::APFloat::opUnderflow)
+  {
+    Diag(w, diag::apreal_underflow) << num;
+  }
+  else if (Result != llvm::APFloat::opOK)
+  {
+    Diag(w, diag::apreal_unknown);
+  }
+  // LCOV_EXCL_STOP
 
   return Token(tok::real_constant, w, v);
 }

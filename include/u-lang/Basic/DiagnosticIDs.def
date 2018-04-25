@@ -41,6 +41,21 @@ DIAGNOSTIC(Warning,
            bad_hex_digit,
            "Invalid Hexadecimal Digit",
            "An invalid hexadecimal digit '%0' was encountered while lexing the source code shown above.")
+DIAGNOSTIC(Fatal,
+           Lexer,
+           apreal_overflow,
+           "Arbitrary Precision Real Overflow Exception",
+           "The real number %0 overflowed the maximum arbitrary precision offered by this compiler.")
+DIAGNOSTIC(Fatal,
+           Lexer,
+           apreal_underflow,
+           "Arbitrary Precision Real Underflow Exception",
+           "The real number %0 underflowed the minimum arbitrary precision offered by this compiler.")
+DIAGNOSTIC(Fatal,
+           Lexer,
+           apreal_unknown,
+           "Arbitrary Precision Real Exception",
+           "An unknown error occured while processing the arbitrary precision real.")
 
 DIAGNOSTIC(Ignore, UnitTest, unit_test_0001, "Unit-test", "I have %0 sense.")
 DIAGNOSTIC(Ignore, UnitTest, unit_test_0002, "Unit-test", "I have %0 sense%s0.")

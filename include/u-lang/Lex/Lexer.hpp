@@ -107,6 +107,8 @@ protected:
 
   Token StringToken(uint32_t quote, bool longString);
 
+  Token ConvertFloat(std::string& num, const SourceLocation& w);
+
   DiagnosticBuilder Diag(SourceLocation Loc, diag::DiagnosticID DiagID)
   {
     return Diags->Report(Loc, DiagID); // NOLINT
