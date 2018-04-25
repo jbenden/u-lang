@@ -78,7 +78,10 @@ DiagnosticEngine::EmitCurrentDiagnostic(bool Force)
   // Lookup the severity and other detail.
   diag::Severity Severity = Mappings->get(Info.getID())->Level;
 
-  DC->HandleDiagnostic(Severity, Info);
+  if (DC)
+  {
+    DC->HandleDiagnostic(Severity, Info);
+  }
 
   CurDiagID = diag::NUM_DIAGNOSTICS;
 
