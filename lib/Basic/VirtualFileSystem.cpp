@@ -874,6 +874,195 @@ InMemoryFileSystem::setCurrentWorkingDirectory(const Twine& P)
     WorkingDirectory = Path.str();
   return std::error_code{};
 }
+
+//===-----------------------------------------------------------------------===/
+// ConcatenatedOverlayFileSystem implementation
+//===-----------------------------------------------------------------------===/
+ConcatenatedOverlayFileSystem::ConcatenatedOverlayFileSystem(IntrusiveRefCntPtr<FileSystem> BaseFS)
+{
+  FSList.push_back(std::move(BaseFS));
+}
+
+void
+ConcatenatedOverlayFileSystem::pushOverlay(IntrusiveRefCntPtr<FileSystem> FS)
+{
+  FSList.push_back(FS);
+  // Synchronize added file systems by duplicating the working directory from
+  // the first one in the list.
+  FS->setCurrentWorkingDirectory(getCurrentWorkingDirectory().get());
+}
+
+ErrorOr<Status>
+ConcatenatedOverlayFileSystem::status(const Twine& Path)
+{
+  for (iterator I = overlays_begin(), E = overlays_end(); I != E; ++I)
+  {
+    ErrorOr<Status> Status = (*I)->status(Path);
+    if (Status || Status.getError() != llvm::errc::no_such_file_or_directory)
+      return Status;
+  }
+  return make_error_code(llvm::errc::no_such_file_or_directory);
+}
+
+ErrorOr<std::unique_ptr<File>>
+ConcatenatedOverlayFileSystem::openFileForRead(const llvm::Twine& Path)
+{
+  // Get file stat for creation of faked Status object
+  auto S = status(Path);
+  if (!S)
+    return make_error_code((errc) S.getError().value()); // LCOV_EXCL_LINE
+
+  // Figure out the total buffer size needed for the file concatenation.
+  uint64_t bufferSize{0};
+  for (iterator I = overlays_begin(), E = overlays_end(); I != E; ++I)
+  {
+    auto Result = (*I)->openFileForRead(Path);
+    if (!Result && Result.getError() != llvm::errc::no_such_file_or_directory)
+    {
+      // got big error!
+      return Result; // LCOV_EXCL_LINE
+    }
+    else if (Result)
+    {
+      // got an entry!
+      bufferSize += (*Result)->status()->getSize() + 1;
+    }
+  }
+
+  // Create a buffer to fill with the concatenation.
+  std::unique_ptr<MemoryBuffer> memoryBuffer = MemoryBuffer::getNewMemBuffer(bufferSize, Path.str());
+
+  // Perform concatenation, into our new buffer.
+  uint64_t offset{0};
+  for (reverse_iterator I = overlays_rbegin(), E = overlays_rend(); I != E; ++I)
+  {
+    auto Result = (*I)->openFileForRead(Path);
+    if (!Result && Result.getError() != llvm::errc::no_such_file_or_directory)
+    {
+      // got big error!
+      return Result; // LCOV_EXCL_LINE
+    }
+    else if (Result)
+    {
+      // got an entry!
+      uint64_t fileSize = (*Result)->status()->getSize();
+
+      auto FileContent = (*Result)->getBuffer(Path.str(), fileSize);
+      memcpy(const_cast<char*>(memoryBuffer->getBufferStart()) + offset, (*FileContent)->getBufferStart(), fileSize);
+
+      memset(const_cast<char*>(memoryBuffer->getBufferStart()) + offset + fileSize, '\n', 1);
+
+      offset += fileSize + 1;
+    }
+  }
+
+  // Create dummy InMemory wrappers for our new content.
+  Status Stat(Path.str(),
+              getNextVirtualUniqueID(),
+              S->getLastModificationTime(), // LCOV_EXCL_LINE
+              0,
+              0,
+              memoryBuffer->getBufferSize(),
+              S->getType(),
+              S->getPermissions(),
+              "");
+
+  auto* F = new detail::InMemoryFile(std::move(Stat), std::move(memoryBuffer));
+
+  return std::unique_ptr<File>(new detail::InMemoryFileAdaptor(*F));
+}
+
+llvm::ErrorOr<std::string>
+ConcatenatedOverlayFileSystem::getCurrentWorkingDirectory() const
+{
+  // All file systems are synchronized, just take the first working directory.
+  return FSList.front()->getCurrentWorkingDirectory();
+}
+
+std::error_code
+ConcatenatedOverlayFileSystem::setCurrentWorkingDirectory(const Twine& Path)
+{
+  for (auto& FS : FSList)
+    if (std::error_code EC = FS->setCurrentWorkingDirectory(Path))
+      return EC; // LCOV_EXCL_LINE
+  return std::error_code{}; // LCOV_EXCL_LINE
+}
+
+namespace
+{
+class ConcatenatedOverlayFSDirIterImpl : public u::vfs::detail::DirIterImpl
+{
+  ConcatenatedOverlayFileSystem& Overlays;
+  std::string Path;
+  ConcatenatedOverlayFileSystem::iterator CurrentFS;
+  directory_iterator CurrentDirIter;
+  llvm::StringSet<> SeenNames;
+
+  std::error_code incrementFS()
+  {
+    assert(CurrentFS != Overlays.overlays_end() && "incrementing past end");
+    ++CurrentFS;
+    for (auto E = Overlays.overlays_end(); CurrentFS != E; ++CurrentFS)
+    {
+      std::error_code EC;
+      CurrentDirIter = (*CurrentFS)->dir_begin(Path, EC);
+      if (EC && EC != errc::no_such_file_or_directory)
+        return EC; // LCOV_EXCL_LINE
+      if (CurrentDirIter != directory_iterator())
+        break; // found
+    }
+    return std::error_code{};
+  }
+
+  std::error_code incrementDirIter(bool IsFirstTime)
+  {
+    assert((IsFirstTime || CurrentDirIter != directory_iterator()) && "incrementing past end");
+    std::error_code EC;
+    if (!IsFirstTime)
+      CurrentDirIter.increment(EC);
+    if (!EC && CurrentDirIter == directory_iterator())
+      EC = incrementFS();
+    return EC;
+  }
+
+  std::error_code incrementImpl(bool IsFirstTime)
+  {
+    while (true)
+    {
+      std::error_code EC = incrementDirIter(IsFirstTime);
+      if (EC || CurrentDirIter == directory_iterator())
+      {
+        CurrentEntry = Status();
+        return EC;
+      }
+      CurrentEntry = *CurrentDirIter;
+      StringRef Name = llvm::sys::path::filename(CurrentEntry.getName());
+      if (SeenNames.insert(Name).second)
+        return EC; // name not seen before
+    }
+    llvm_unreachable("returned above");
+  }
+
+public:
+  ConcatenatedOverlayFSDirIterImpl(const Twine& Path, ConcatenatedOverlayFileSystem& FS, std::error_code& EC)
+    : Overlays(FS)
+    , Path(Path.str())
+    , CurrentFS(Overlays.overlays_begin())
+  {
+    CurrentDirIter = (*CurrentFS)->dir_begin(Path, EC);
+    EC = incrementImpl(true);
+  }
+
+  std::error_code increment() override { return incrementImpl(false); }
+};
+} // end anonymous namespace
+
+directory_iterator
+ConcatenatedOverlayFileSystem::dir_begin(const Twine& Dir, std::error_code& EC)
+{
+  return directory_iterator(std::make_shared<ConcatenatedOverlayFSDirIterImpl>(Dir, *this, EC));
+}
+
 } /* namespace vfs */
 } /* namespace u */
 

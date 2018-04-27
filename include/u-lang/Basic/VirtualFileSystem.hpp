@@ -401,6 +401,59 @@ public:
   iterator overlays_end() { return FSList.rend(); }
 };
 
+/// \brief A file system that allows overlaying one \p AbstractFileSystem on top
+/// of another.
+///
+/// Consists of a stack of >=1 \p FileSystem objects, which are treated as being
+/// one merged file system. When there is a directory that exists in more than
+/// one file system, the \p OverlayFileSystem contains a directory containing
+/// the union of their contents.  The attributes (permissions, etc.) of the
+/// top-most (most recently added) directory are used.  When there is a file
+/// that exists in more than one file system, the content is a concatenation
+/// of all files, from the bottom-to-top-most file; but with each
+/// file having a newline appended to prevent parsing problems.
+class ConcatenatedOverlayFileSystem : public FileSystem
+{
+  typedef SmallVector<IntrusiveRefCntPtr<FileSystem>, 1> FileSystemList;
+  /// \brief The stack of file systems, implemented as a list in order of
+  /// their addition.
+  FileSystemList FSList;
+
+public:
+  explicit ConcatenatedOverlayFileSystem(IntrusiveRefCntPtr<FileSystem> Base);
+
+  /// \brief Pushes a file system on top of the stack.
+  void pushOverlay(IntrusiveRefCntPtr<FileSystem> FS);
+
+  llvm::ErrorOr<Status> status(const Twine& Path) override;
+
+  llvm::ErrorOr<std::unique_ptr<File>> openFileForRead(const Twine& Path) override;
+
+  directory_iterator dir_begin(const Twine& Dir, std::error_code& EC) override;
+
+  llvm::ErrorOr<std::string> getCurrentWorkingDirectory() const override;
+
+  std::error_code setCurrentWorkingDirectory(const Twine& Path) override;
+
+  typedef FileSystemList::reverse_iterator iterator;
+
+  /// \brief Get an iterator pointing to the most recently added file system.
+  iterator overlays_begin() { return FSList.rbegin(); }
+
+  /// \brief Get an iterator pointing one-past the least recently added file
+  /// system.
+  iterator overlays_end() { return FSList.rend(); }
+
+  typedef FileSystemList::iterator reverse_iterator;
+
+  /// \brief Get a reverse iterator pointing to the most recently added file system.
+  reverse_iterator overlays_rbegin() { return FSList.begin(); }
+
+  /// \brief Get a reverse iterator pointing one-past the least recently added file
+  /// system.
+  reverse_iterator overlays_rend() { return FSList.end(); }
+};
+
 namespace detail
 {
 

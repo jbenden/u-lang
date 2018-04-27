@@ -239,3 +239,89 @@ TEST(VirtualFileSystem, InMemoryAndTwoRealOverlaySanityTest) // NOLINT
 
   EXPECT_EQ(count, 10);
 }
+
+TEST(VirtualFileSystem, InMemoryAndSingleRealConcatOverlaySanityTest) // NOLINT
+{
+  IntrusiveRefCntPtr<InMemoryFileSystem> inMemoryFileSystem = new InMemoryFileSystem();
+
+  time_t ModTime = time(nullptr);
+
+  auto Buf = llvm::MemoryBuffer::getNewMemBuffer(64, "my_buffer");
+  strcpy(const_cast<char*>(Buf->getBufferStart()), "Hello");
+
+  inMemoryFileSystem->addFileNoOwn("/a/b/c.txt", ModTime, Buf.get());
+
+  IntrusiveRefCntPtr<FileSystem> realFileSystem = new RealFileSystem(ULANG_TEST_FIXTURE_PATH "/VFS");
+
+  ConcatenatedOverlayFileSystem overlayFileSystem{realFileSystem};
+  overlayFileSystem.pushOverlay(inMemoryFileSystem);
+
+  overlayFileSystem.setCurrentWorkingDirectory("/");
+
+  // Begin testing.
+  EXPECT_TRUE(overlayFileSystem.exists("/a/b/c.txt"));
+  EXPECT_FALSE(overlayFileSystem.exists("/a.txt"));
+
+  EXPECT_TRUE(overlayFileSystem.exists("/b/1/test.txt"));
+
+  auto S = overlayFileSystem.status("/b/1");
+  EXPECT_TRUE(!!S);
+  EXPECT_TRUE(S->isDirectory());
+  EXPECT_STREQ(S->getName().str().c_str(), "/b/1");
+}
+
+TEST(VirtualFileSystem, InMemoryAndTwoRealConcatOverlaySanityTest) // NOLINT
+{
+  IntrusiveRefCntPtr<InMemoryFileSystem> inMemoryFileSystem = new InMemoryFileSystem();
+
+  time_t ModTime = time(nullptr);
+
+  auto Buf = llvm::MemoryBuffer::getNewMemBuffer(64, "my_buffer");
+  strcpy(const_cast<char*>(Buf->getBufferStart()), "Hello");
+
+  inMemoryFileSystem->addFileNoOwn("/a/b/c.txt", ModTime, Buf.get());
+
+  IntrusiveRefCntPtr<FileSystem> realFileSystem = new RealFileSystem(ULANG_TEST_FIXTURE_PATH "/VFS");
+
+  IntrusiveRefCntPtr<FileSystem> realFileSystemOverlay = new RealFileSystem(ULANG_TEST_FIXTURE_PATH "/VFS-overlay");
+
+  ConcatenatedOverlayFileSystem overlayFileSystem{realFileSystem};
+  overlayFileSystem.pushOverlay(inMemoryFileSystem);
+  overlayFileSystem.pushOverlay(realFileSystemOverlay);
+
+  // Begin testing.
+  EXPECT_TRUE(overlayFileSystem.exists("/a/b/c.txt"));
+  EXPECT_FALSE(overlayFileSystem.exists("/a.txt"));
+
+  EXPECT_TRUE(overlayFileSystem.exists("/b/1/test.txt"));
+
+  auto S = overlayFileSystem.status("/b/1");
+  EXPECT_TRUE(!!S);
+  EXPECT_TRUE(S->isDirectory());
+  EXPECT_STREQ(S->getName().str().c_str(), "/b/1");
+
+  EXPECT_TRUE(overlayFileSystem.exists("/c/empty.txt"));
+
+  // Concatenated Overlay FS will take the joined file content.
+  auto Content = overlayFileSystem.getBufferForFile("/b/1/test.txt", 32u);
+  if (!Content)
+  {
+    std::cerr << Content.getError().message() << std::endl;
+  }
+  EXPECT_TRUE(!!Content);
+  EXPECT_STREQ(Content.get()->getBufferStart(), "hello world!\nfrom earth!\n");
+
+  // Unit-test root recursion
+  unsigned count = 0;
+  std::error_code EC;
+  for (auto ri = recursive_directory_iterator(overlayFileSystem, "/", EC); ri != recursive_directory_iterator();
+       ri.increment(EC))
+  {
+    EXPECT_TRUE(ri->getName().startswith("/"));
+    EXPECT_LE(ri->getName().size(), 13u);
+
+    ++count;
+  }
+
+  EXPECT_EQ(count, 10);
+}
