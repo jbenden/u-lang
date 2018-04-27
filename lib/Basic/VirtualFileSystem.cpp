@@ -59,6 +59,49 @@ using llvm::sys::fs::file_status;
 using llvm::sys::fs::file_type;
 using llvm::sys::fs::perms;
 
+#if LLVM_VERSION_MAJOR < 5
+namespace llvm
+{
+
+namespace sys
+{
+
+namespace fs
+{
+
+std::error_code set_current_path(const Twine &path);
+
+#ifndef WIN32
+std::error_code set_current_path(const Twine &path) {
+  SmallString<128> path_storage;
+  StringRef p = path.toNullTerminatedStringRef(path_storage);
+
+  if (::chdir(p.begin()) == -1)
+    return std::error_code{errno, std::generic_category()};
+
+  return std::error_code{};
+}
+#else
+std::error_code set_current_path(const Twine &path) {
+  // Convert to utf-16.
+  SmallVector<wchar_t, 128> wide_path;
+  if (std::error_code ec = widenPath(path, wide_path))
+    return ec;
+
+  if (!::SetCurrentDirectoryW(wide_path.begin()))
+    return mapWindowsError(::GetLastError());
+
+  return std::error_code();
+}
+#endif
+
+} // namespace fs
+
+} // namespace sys
+
+} // namespace llvm
+#endif
+
 Status::Status(StringRef Name,
                UniqueID UID,
                sys::TimePoint<> MTime,
@@ -107,9 +150,15 @@ Status::Status(StringRef Name,
 Status
 Status::copyWithNewName(const file_status& In, StringRef NewName, StringRef NewMountPoint)
 {
+#if LLVM_VERSION_MAJOR < 4
+  auto MT = toTimePoint(In.getLastModificationTime());
+#else
+  auto MT = In.getLastModificationTime();
+#endif
+
   return Status(NewName,
                 In.getUniqueID(),
-                In.getLastModificationTime(),
+                MT,
                 In.getUser(),
                 In.getGroup(),
                 In.getSize(),

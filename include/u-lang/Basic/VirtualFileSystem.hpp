@@ -39,7 +39,6 @@
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/ADT/Twine.h"
-#include "llvm/Support/Chrono.h"
 #include "llvm/Support/ErrorOr.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/SourceMgr.h"
@@ -73,8 +72,62 @@ using llvm::SmallVectorImpl;
 using llvm::StringRef;
 using llvm::Twine;
 
+#include <chrono>
+
 namespace llvm
 {
+
+#if LLVM_VERSION_MAJOR < 4
+
+namespace sys {
+
+/// A time point on the system clock. This is provided for two reasons:
+/// - to insulate us agains subtle differences in behavoir to differences in
+///   system clock precision (which is implementation-defined and differs between
+///   platforms).
+/// - to shorten the type name
+/// The default precision is nanoseconds. If need a specific precision specify
+/// it explicitly. If unsure, use the default. If you need a time point on a
+/// clock other than the system_clock, use std::chrono directly.
+template <typename D = std::chrono::nanoseconds>
+using TimePoint = std::chrono::time_point<std::chrono::system_clock, D>;
+
+ /// Convert a TimePoint to std::time_t
+LLVM_ATTRIBUTE_ALWAYS_INLINE inline TimePoint<> toTimePoint(llvm::sys::TimeValue const& TV) {
+  using namespace std::chrono;
+  return TimePoint<nanoseconds>(nanoseconds((TV.seconds() * 1000000000UL) + TV.nanoseconds()));
+}
+
+/// Convert a TimePoint to std::time_t
+LLVM_ATTRIBUTE_ALWAYS_INLINE inline std::time_t toTimeT(TimePoint<> TP) {
+ using namespace std::chrono;
+ return system_clock::to_time_t(
+     time_point_cast<system_clock::time_point::duration>(TP));
+}
+
+/// Convert a std::time_t to a TimePoint
+LLVM_ATTRIBUTE_ALWAYS_INLINE inline TimePoint<std::chrono::seconds>
+toTimePoint(std::time_t T) {
+ using namespace std::chrono;
+ return time_point_cast<seconds>(system_clock::from_time_t(T));
+}
+
+} // namespace sys
+#endif
+
+#if LLVM_VERSION_MAJOR < 5
+namespace sys
+{
+
+namespace fs
+{
+
+std::error_code set_current_path(const Twine &path);
+
+} // namespace fs
+
+} // namespace sys
+#endif
 
 class MemoryBuffer;
 
