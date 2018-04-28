@@ -66,6 +66,8 @@ endif()
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 
+add_definitions(-DULANG_SYS_MODULE_PATH=\"${CMAKE_INSTALL_PREFIX}/share/u-lang/modules\")
+
 #----------------------------------------------------------------------
 # Compiler Flags
 #----------------------------------------------------------------------
