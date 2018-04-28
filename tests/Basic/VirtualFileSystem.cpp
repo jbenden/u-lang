@@ -237,7 +237,7 @@ TEST(VirtualFileSystem, InMemoryAndTwoRealOverlaySanityTest) // NOLINT
     ++count;
   }
 
-  EXPECT_EQ(count, 14);
+  EXPECT_EQ(count, 15);
 }
 
 TEST(VirtualFileSystem, InMemoryAndSingleRealConcatOverlaySanityTest) // NOLINT
@@ -323,5 +323,5 @@ TEST(VirtualFileSystem, InMemoryAndTwoRealConcatOverlaySanityTest) // NOLINT
     ++count;
   }
 
-  EXPECT_EQ(count, 14);
+  EXPECT_EQ(count, 15);
 }
