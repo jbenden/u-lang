@@ -46,21 +46,11 @@ public:
     Initialize();
   }
 
-  void AddUserModulePath(std::string Path)
-  {
-    UserModulePaths.emplace_back(std::move(Path));
-  }
-
-  void AddSystemModulePath(std::string Path)
-  {
-    SystemModulePaths.emplace_back(std::move(Path));
-  }
-
-  void SetSystemModulePath(std::string Path)
+  void SetSystemModulePaths(std::vector<std::string> Paths)
   {
     SystemModulePaths.clear();
 
-    SystemModulePaths.emplace_back(std::move(Path));
+    SystemModulePaths.assign(Paths.begin(), Paths.end());
 
     Initialize();
   }
