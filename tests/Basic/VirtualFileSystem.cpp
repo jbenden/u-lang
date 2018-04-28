@@ -138,7 +138,7 @@ TEST(VirtualFileSystem, RealFileSystemSanityTest) // NOLINT
     ++count;
   }
 
-  EXPECT_EQ(count, 7);
+  EXPECT_EQ(count, 11);
 
   // Unit-test subdirectory recursion
   count = 0;
@@ -151,7 +151,7 @@ TEST(VirtualFileSystem, RealFileSystemSanityTest) // NOLINT
     ++count;
   }
 
-  EXPECT_EQ(count, 4);
+  EXPECT_EQ(count, 6);
 }
 
 TEST(VirtualFileSystem, InMemoryAndSingleRealOverlaySanityTest) // NOLINT
@@ -237,7 +237,7 @@ TEST(VirtualFileSystem, InMemoryAndTwoRealOverlaySanityTest) // NOLINT
     ++count;
   }
 
-  EXPECT_EQ(count, 10);
+  EXPECT_EQ(count, 14);
 }
 
 TEST(VirtualFileSystem, InMemoryAndSingleRealConcatOverlaySanityTest) // NOLINT
@@ -323,5 +323,5 @@ TEST(VirtualFileSystem, InMemoryAndTwoRealConcatOverlaySanityTest) // NOLINT
     ++count;
   }
 
-  EXPECT_EQ(count, 10);
+  EXPECT_EQ(count, 14);
 }
