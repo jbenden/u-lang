@@ -23,6 +23,21 @@
 #ifndef U_LANG_FILEMANAGER_HPP
 #define U_LANG_FILEMANAGER_HPP
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wmacro-redefined"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#endif
+#include <llvm/Support/FileSystem.h>
+#include <llvm/Support/Path.h>
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
+#include <glog/logging.h>
+
 #include <string>
 #include <vector>
 
@@ -111,14 +126,10 @@ private:
 
   void AddDefaultUserModulePath()
   {
-    llvm::SmallVector<char, 0> UserModules;
-    if (llvm::sys::fs::real_path("~/.u-lang/modules", UserModules, true))
-    {
-      std::string path;
-      std::copy(UserModules.begin(), UserModules.end(), std::back_inserter(path));
+    llvm::SmallString<128> Storage;
+    llvm::sys::path::home_directory(Storage);
 
-      UserModulePaths.emplace_back(path);
-    }
+    UserModulePaths.emplace_back(Storage.str().str() + "/.u-lang/modules");
   }
 
   void Initialize()
@@ -131,14 +142,28 @@ private:
     {
       IntrusiveRefCntPtr<vfs::FileSystem> realFileSystem = new vfs::RealFileSystem(Path);
 
-      VFS->pushOverlay(realFileSystem);
+      if (llvm::sys::fs::exists(Path))
+      {
+        VFS->pushOverlay(realFileSystem); // LCOV_EXCL_LINE
+      }
+      else
+      {
+        LOG(WARNING) << "The system module path " << Path << " does not exist."; // LCOV_EXCL_LINE
+      }
     }
 
     for (auto& Path : UserModulePaths)
     {
       IntrusiveRefCntPtr<vfs::FileSystem> realFileSystem = new vfs::RealFileSystem(Path);
 
-      VFS->pushOverlay(realFileSystem);
+      if (llvm::sys::fs::exists(Path))
+      {
+        VFS->pushOverlay(realFileSystem); // LCOV_EXCL_LINE
+      }
+      else
+      {
+        LOG(WARNING) << "The user module path " << Path << " does not exist."; // LCOV_EXCL_LINE
+      }
     }
   }
 };
