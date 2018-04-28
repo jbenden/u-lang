@@ -33,7 +33,7 @@
 #undef HAVE_STDINT_H
 #undef HAVE_UINT64_T
 #include <llvm/Support/MemoryBuffer.h>
-
+#include <llvm/Support/FileSystem.h>
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
@@ -185,17 +185,9 @@ class UAPI MemoryBufferSource : public Source
 public:
   MemoryBufferSource() = delete;
 
-  explicit MemoryBufferSource(std::unique_ptr<llvm::MemoryBuffer> Buf)
-    : Source()
-    , source_{std::move(Buf)}
-    , hasBOM_{false}
-    , stream_{reinterpret_cast<const uint8_t*>(source_->getBufferStart()), source_->getBufferSize()}
-    , it_{stream_.rdbuf()}
-    , first_{true}
-    , position_{1, 0}
-    , gotNewLine_{false}
-  {
-  }
+  explicit MemoryBufferSource(llvm::sys::fs::UniqueID ID,
+                              llvm::StringRef Path,
+                              std::unique_ptr<llvm::MemoryBuffer> Buf);
 
   MemoryBufferSource(MemoryBufferSource const&) = delete;
 
@@ -213,10 +205,13 @@ public:
 
   SourceLocation getLocation() const override
   {
-    return SourceLocation("top-level.u", ".", SourceRange(position_, position_));
+    return SourceLocation(fileName_, filePath_, SourceRange(position_, position_));
   }
 
 protected:
+  llvm::sys::fs::UniqueID id_;
+  std::string fileName_;
+  std::string filePath_;
   std::unique_ptr<llvm::MemoryBuffer> source_;
   bool hasBOM_;
   MemoryBufferInputStream stream_;

@@ -166,6 +166,34 @@ StringSource::Get()
   return ch;
 }
 
+MemoryBufferSource::MemoryBufferSource(llvm::sys::fs::UniqueID ID,
+                                       llvm::StringRef Path,
+                                       std::unique_ptr<llvm::MemoryBuffer> Buf)
+  : Source()
+  , id_{ID}
+  , source_{std::move(Buf)}
+  , hasBOM_{false}
+  , stream_{reinterpret_cast<const uint8_t*>(source_->getBufferStart()), source_->getBufferSize()}
+  , it_{stream_.rdbuf()}
+  , first_{true}
+  , position_{1, 0}
+  , gotNewLine_{false}
+{
+  VLOG(1) << "Reading from " << Path.str();
+
+  llvm::SmallVector<char, 0> theFileName;
+  llvm::Twine f{Path};
+
+  f.toVector(theFileName);
+
+  std::string fn;
+  std::copy(theFileName.begin(), theFileName.end(), std::back_inserter(fn));
+  fileName_ = llvm::sys::path::filename(fn).str();
+
+  llvm::sys::path::remove_filename(theFileName);
+  std::copy(theFileName.begin(), theFileName.end(), std::back_inserter(filePath_));
+}
+
 uint32_t
 MemoryBufferSource::Get()
 {

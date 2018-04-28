@@ -84,5 +84,8 @@ SourceManager::getFile(std::string Path)
   auto fileSize = (*FileStatus).getSize();
   auto FileContent = (*File)->getBuffer(Path, fileSize);
 
-  return std::make_shared<MemoryBufferSource>(std::move(*FileContent));
+  return std::make_shared<MemoryBufferSource>(FileStatus->getUniqueID(),
+                                              FileStatus->getActualName().empty() ? FileStatus->getName()
+                                                                                  : FileStatus->getActualName(),
+                                              std::move(*FileContent));
 }
