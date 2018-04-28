@@ -112,7 +112,8 @@ public:
     , range_(SourceRange(SourcePosition(0, 0), SourcePosition(0, 0))) {}
 
   SourceLocation(std::string const& fileName, std::string const& filePath, SourceRange const& range) // NOLINT
-    : fileName_{fileName}
+    : id_{}
+    , fileName_{fileName}
     , filePath_{filePath}
     , range_{range} {}
 
