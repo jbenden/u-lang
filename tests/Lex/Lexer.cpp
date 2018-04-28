@@ -596,8 +596,10 @@ TEST_F(LexerTest, SourceManagerContainsOurSource) // NOLINT
 
   EXPECT_EQ(tok::eof, lexer->Lex().getKind());
 
-  auto& FI = sourceManager->getOrInsertFileInfo("top-level.u", ".");
+  auto& FI = sourceManager->getOrInsertFileInfo(llvm::sys::fs::UniqueID{}, "top-level.u", ".");
   EXPECT_GE(FI.getLine(1).size(), 0u);
+  EXPECT_EQ(0, FI.getFileID().getFile());
+  EXPECT_EQ(0, FI.getFileID().getDevice());
 
   EXPECT_STREQ("'\\xg0'", FI.getLine(1).c_str());
 }

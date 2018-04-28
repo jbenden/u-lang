@@ -55,9 +55,9 @@ FileInfo::AddCharacter(uint64_t LineNum, uint32_t Char)
 }
 
 FileInfo&
-SourceManager::getOrInsertFileInfo(std::string file, std::string path)
+SourceManager::getOrInsertFileInfo(llvm::sys::fs::UniqueID id, std::string file, std::string path)
 {
-  auto Entry = FileTable.find(std::make_pair(file, path));
+  auto Entry = FileTable.find(std::make_tuple(id, file, path));
 
   if (Entry != FileTable.end())
   {
@@ -65,7 +65,7 @@ SourceManager::getOrInsertFileInfo(std::string file, std::string path)
   }
   else
   {
-    auto Result = FileTable.insert(std::make_pair(std::make_pair(file, path), FileInfo{file, path}));
+    auto Result = FileTable.insert(std::make_pair(std::make_tuple(id, file, path), FileInfo{id, file, path}));
 
     return Result.first->second;
   }

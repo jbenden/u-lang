@@ -41,14 +41,18 @@ class UAPI FileInfo
   typedef std::vector<uint32_t> LineT;
   typedef std::vector<LineT> LinesT;
 
+  llvm::sys::fs::UniqueID ID;
   std::string FileName;
   std::string FilePath;
   LinesT Lines;
 
 public:
-  FileInfo(std::string const& FN, std::string const& FP) // NOLINT
-    : FileName{FN}
+  FileInfo(llvm::sys::fs::UniqueID ID, std::string const& FN, std::string const& FP) // NOLINT
+    : ID{ID}
+    , FileName{FN}
     , FilePath{FP} {}
+
+  llvm::sys::fs::UniqueID getFileID() const { return ID; }
 
   std::string getFileName() const { return FileName; }
 
@@ -64,7 +68,7 @@ private:
 
 class UAPI SourceManager
 {
-  typedef std::pair<std::string, std::string> FilePathT;
+  typedef std::tuple<llvm::sys::fs::UniqueID, std::string, std::string> FilePathT;
   typedef std::map<FilePathT, FileInfo> FilePathTableT;
 
   typedef FilePathTableT::iterator iterator;
@@ -85,7 +89,7 @@ public:
   std::shared_ptr<Source> getFile(std::string path);
 
   /// \brief Retrieve or create the FileInfo for the specified filename and path.
-  FileInfo& getOrInsertFileInfo(std::string file, std::string path);
+  FileInfo& getOrInsertFileInfo(llvm::sys::fs::UniqueID id, std::string file, std::string path);
 
   /// \brief Returns an iterator pointing at the beginning of the FileTable data.
   iterator begin() { return FileTable.begin(); }
