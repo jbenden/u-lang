@@ -42,6 +42,7 @@ public:
   FileManager()
   {
     AddDefaultSystemModulePath();
+    AddDefaultUserModulePath();
     Initialize();
   }
 
@@ -116,6 +117,18 @@ private:
   void AddDefaultSystemModulePath()
   {
     SystemModulePaths.emplace_back(ULANG_SYS_MODULE_PATH);
+  }
+
+  void AddDefaultUserModulePath()
+  {
+    llvm::SmallVector<char, 0> UserModules;
+    if (llvm::sys::fs::real_path("~/.u-lang/modules", UserModules, true))
+    {
+      std::string path;
+      std::copy(UserModules.begin(), UserModules.end(), std::back_inserter(path));
+
+      UserModulePaths.emplace_back(path);
+    }
   }
 
   void Initialize()
