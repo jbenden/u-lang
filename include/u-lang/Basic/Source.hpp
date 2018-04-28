@@ -48,6 +48,14 @@
 namespace u
 {
 
+enum class eol
+{
+  Unknown = 0,
+  UnixLineEndings = 1,
+  WindowsLineEndings = 2,
+  MacLineEndings = 4,
+};
+
 class UAPI Source
 {
 public:
@@ -68,6 +76,8 @@ public:
   virtual SourceLocation getLocation() const = 0;
 
   virtual bool hasBOM() const = 0;
+
+  virtual eol detectedLineEndings() const = 0;
 };
 
 class UAPI FileSource : public Source
@@ -89,6 +99,26 @@ public:
 
   bool hasBOM() const override { return hasBOM_; }
 
+  // LCOV_EXCL_START
+  eol detectedLineEndings() const override
+  {
+    if (foundFF_ && foundNL_)
+    {
+      return eol::WindowsLineEndings;
+    }
+    else if (foundFF_)
+    {
+      return eol::MacLineEndings;
+    }
+    else if (foundNL_)
+    {
+      return eol::UnixLineEndings;
+    }
+
+    return eol::Unknown;
+  }
+  // LCOV_EXCL_STOP
+
   uint32_t Get() override;
 
   SourceLocation getLocation() const override
@@ -106,6 +136,8 @@ protected:
   std::istreambuf_iterator<char> end_;
   SourcePosition position_;
   bool gotNewLine_;
+  bool foundFF_;
+  bool foundNL_;
 };
 
 class UAPI StringSource : public Source
@@ -122,6 +154,8 @@ public:
     , first_{true}
     , position_{1, 0}
     , gotNewLine_{false}
+    , foundFF_{false}
+    , foundNL_{false}
   {
   }
 
@@ -136,6 +170,26 @@ public:
   explicit operator bool() const override { return it_ != end_; }
 
   bool hasBOM() const override { return hasBOM_; }
+
+  // LCOV_EXCL_START
+  eol detectedLineEndings() const override
+  {
+    if (foundFF_ && foundNL_)
+    {
+      return eol::WindowsLineEndings;
+    }
+    else if (foundFF_)
+    {
+      return eol::MacLineEndings;
+    }
+    else if (foundNL_)
+    {
+      return eol::UnixLineEndings;
+    }
+
+    return eol::Unknown;
+  }
+  // LCOV_EXCL_STOP
 
   uint32_t Get() override;
 
@@ -153,6 +207,8 @@ protected:
   bool first_;
   SourcePosition position_;
   bool gotNewLine_;
+  bool foundFF_;
+  bool foundNL_;
 };
 
 class UAPI MemoryBufferInputStream : public std::istream
@@ -201,6 +257,26 @@ public:
 
   bool hasBOM() const override { return hasBOM_; }
 
+  // LCOV_EXCL_START
+  eol detectedLineEndings() const override
+  {
+    if (foundFF_ && foundNL_)
+    {
+      return eol::WindowsLineEndings;
+    }
+    else if (foundFF_)
+    {
+      return eol::MacLineEndings;
+    }
+    else if (foundNL_)
+    {
+      return eol::UnixLineEndings;
+    }
+
+    return eol::Unknown;
+  }
+  // LCOV_EXCL_STOP
+
   uint32_t Get() override;
 
   SourceLocation getLocation() const override
@@ -220,6 +296,8 @@ protected:
   bool first_;
   SourcePosition position_;
   bool gotNewLine_;
+  bool foundFF_;
+  bool foundNL_;
 };
 
 } /* namespace u */

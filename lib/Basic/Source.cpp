@@ -52,6 +52,8 @@ FileSource::FileSource(std::string const& fileName)
   , it_{stream_.rdbuf()}
   , position_{1, 0}
   , gotNewLine_{false}
+  , foundFF_{false}
+  , foundNL_{false}
 {
   VLOG(1) << "Reading from " << fileName_;
 
@@ -108,12 +110,16 @@ FileSource::Get()
 
   while (ch == '\r') // LCOV_EXCL_BR_LINE
   {
+    foundFF_ = true; // LCOV_EXCL_LINE
+
     ch = utf8::next(it_, end_); // LCOV_EXCL_LINE
   }
 
   // if NL, then reset column and increment line number.
   if (ch == '\n')
   {
+    foundNL_ = true;
+
     gotNewLine_ = true;
   }
 
@@ -154,12 +160,16 @@ StringSource::Get()
 
   while (ch == '\r')
   {
+    foundFF_ = true;
+
     ch = utf8::next(it_, end_);
   }
 
   // if NL, then reset column and increment line number.
   if (ch == '\n')
   {
+    foundNL_ = true;
+
     gotNewLine_ = true;
   }
 
@@ -178,6 +188,8 @@ MemoryBufferSource::MemoryBufferSource(llvm::sys::fs::UniqueID ID,
   , first_{true}
   , position_{1, 0}
   , gotNewLine_{false}
+  , foundFF_{false}
+  , foundNL_{false}
 {
   VLOG(1) << "Reading from " << Path.str();
 
@@ -228,12 +240,16 @@ MemoryBufferSource::Get()
 
   while (ch == '\r') // LCOV_EXCL_BR_LINE
   {
+    foundFF_ = true; // LCOV_EXCL_LINE
+
     ch = utf8::next(it_, end_); // LCOV_EXCL_LINE
   }
 
   // if NL, then reset column and increment line number.
   if (ch == '\n')
   {
+    foundNL_ = true;
+
     gotNewLine_ = true;
   }
 

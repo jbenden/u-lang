@@ -86,4 +86,10 @@ TEST_F(SourceManagerTest, ReadsUntilEOF) // NOLINT
 
   EXPECT_EQ(count, 25u);
   EXPECT_FALSE(Source->hasBOM());
+
+#ifdef LLVM_ON_UNIX
+  EXPECT_EQ(Source->detectedLineEndings(), eol::UnixLineEndings);
+#else
+  EXPECT_EQ(Source->detectedLineEndings(), eol::WindowsLineEndings);
+#endif
 }
