@@ -70,3 +70,19 @@ SourceManager::getOrInsertFileInfo(std::string file, std::string path)
     return Result.first->second;
   }
 }
+
+std::shared_ptr<Source>
+SourceManager::getFile(std::string Path)
+{
+  auto File = FM->openFileForRead(Path);
+  if (!File)
+  {
+    return nullptr;
+  }
+
+  auto FileStatus = (*File)->status();
+  auto fileSize = (*FileStatus).getSize();
+  auto FileContent = (*File)->getBuffer(Path, fileSize);
+
+  return std::make_shared<MemoryBufferSource>(std::move(*FileContent));
+}

@@ -28,6 +28,7 @@
 #include <vector>
 
 #include <u-lang/Basic/FileManager.hpp>
+#include <u-lang/Basic/Source.hpp>
 #include <u-lang/u.hpp>
 
 #include <utf8.h>
@@ -80,6 +81,8 @@ public:
   {
     FM = std::make_unique<FileManager>();
   }
+
+  std::shared_ptr<Source> getFile(std::string path);
 
   /// \brief Retrieve or create the FileInfo for the specified filename and path.
   FileInfo& getOrInsertFileInfo(std::string file, std::string path);
