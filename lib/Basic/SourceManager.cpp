@@ -77,7 +77,7 @@ SourceManager::getFile(std::string Path)
   auto File = FM->openFileForRead(Path);
   if (!File)
   {
-    return nullptr;
+    return nullptr; // LCOV_EXCL_LINE
   }
 
   auto FileStatus = (*File)->status();
