@@ -70,6 +70,7 @@ class UAPI Lexer
   std::shared_ptr<SourceManager> SM;
   std::shared_ptr<DiagnosticEngine> Diags;
   Source& source_;
+  llvm::sys::fs::UniqueID id_;
   std::string fileName_;
   std::string filePath_;
   SourceRange sourceRange_;
@@ -100,7 +101,7 @@ public:
 
   Token Lex();
 
-  SourceLocation getLocation() const { return SourceLocation(fileName_, filePath_, sourceRange_); }
+  SourceLocation getLocation() const { return SourceLocation(id_, fileName_, filePath_, sourceRange_); }
 
 protected:
   Token NumberToken();

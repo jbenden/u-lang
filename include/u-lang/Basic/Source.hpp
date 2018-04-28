@@ -205,7 +205,7 @@ public:
 
   SourceLocation getLocation() const override
   {
-    return SourceLocation(fileName_, filePath_, SourceRange(position_, position_));
+    return SourceLocation(id_, fileName_, filePath_, SourceRange(position_, position_));
   }
 
 protected:

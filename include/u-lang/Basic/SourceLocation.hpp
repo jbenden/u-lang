@@ -23,6 +23,18 @@
 #ifndef U_LANG_SOURCELOCATION_HPP
 #define U_LANG_SOURCELOCATION_HPP
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wmacro-redefined"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#endif
+#include <llvm/Support/FileSystem.h>
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
 #include <string>
 
 #include <u-lang/u.hpp>
@@ -94,7 +106,8 @@ class UAPI SourceLocation
 {
 public:
   SourceLocation()
-    : fileName_{""}
+    : id_{}
+    , fileName_{""}
     , filePath_{""}
     , range_(SourceRange(SourcePosition(0, 0), SourcePosition(0, 0))) {}
 
@@ -102,6 +115,19 @@ public:
     : fileName_{fileName}
     , filePath_{filePath}
     , range_{range} {}
+
+  SourceLocation(llvm::sys::fs::UniqueID id,
+                 std::string const& fileName, // NOLINT
+                 std::string const& filePath, // NOLINT
+                 SourceRange const& range)
+    : id_{id}
+    , fileName_{fileName}
+    , filePath_{filePath}
+    , range_{range}
+  {
+  }
+
+  llvm::sys::fs::UniqueID getFileID() const { return id_; }
 
   std::string const& getFileName() const { return fileName_; }
 
@@ -112,6 +138,7 @@ public:
   SourceRange& getRange() { return range_; }
 
 protected:
+  llvm::sys::fs::UniqueID id_;
   std::string fileName_;
   std::string filePath_;
   SourceRange range_;

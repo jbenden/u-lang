@@ -63,6 +63,7 @@ Lexer::Lexer(u::Source& source)
   : SM{std::make_shared<SourceManager>()}
   , Diags{std::make_shared<DiagnosticEngine>(SM)}
   , source_{source}
+  , id_{source_.getLocation().getFileID()}
   , fileName_{source_.getLocation().getFileName()}
   , filePath_{source_.getLocation().getFilePath()}
   , sourceRange_{source_.getLocation().getRange()}
@@ -74,6 +75,7 @@ Lexer::Lexer(std::shared_ptr<DiagnosticEngine> D, u::Source& source) // NOLINT
   : SM{D->getSourceManager()}
   , Diags{D} // NOLINT
   , source_{source}
+  , id_{source_.getLocation().getFileID()}
   , fileName_{source_.getLocation().getFileName()}
   , filePath_{source_.getLocation().getFilePath()}
   , sourceRange_{source_.getLocation().getRange()}
@@ -85,6 +87,7 @@ Lexer::Lexer(std::shared_ptr<SourceManager> M, std::shared_ptr<DiagnosticEngine>
   : SM{M} // NOLINT
   , Diags{D} // NOLINT
   , source_{source}
+  , id_{source_.getLocation().getFileID()}
   , fileName_{source_.getLocation().getFileName()}
   , filePath_{source_.getLocation().getFilePath()}
   , sourceRange_{source_.getLocation().getRange()}
