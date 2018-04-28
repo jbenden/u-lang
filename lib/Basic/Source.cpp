@@ -165,3 +165,49 @@ StringSource::Get()
 
   return ch;
 }
+
+uint32_t
+MemoryBufferSource::Get()
+{
+  if (first_)
+  {
+    if (utf8::starts_with_bom(it_, end_))
+    {
+      ++it_;
+      hasBOM_ = true;
+    }
+    else
+    {
+      stream_.unget();
+    }
+
+    first_ = false;
+  }
+
+  // process previous new-line
+  if (gotNewLine_)
+  {
+    position_.setColumn(0);
+    position_.incrementLineNumber();
+
+    gotNewLine_ = false;
+  }
+
+  uint32_t ch = utf8::next(it_, end_);
+
+  // increment column
+  position_.incrementColumn();
+
+  while (ch == '\r')
+  {
+    ch = utf8::next(it_, end_);
+  }
+
+  // if NL, then reset column and increment line number.
+  if (ch == '\n')
+  {
+    gotNewLine_ = true;
+  }
+
+  return ch;
+}

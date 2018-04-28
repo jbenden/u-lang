@@ -23,12 +23,27 @@
 #ifndef U_LANG_SOURCE_HPP
 #define U_LANG_SOURCE_HPP
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wmacro-redefined"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#endif
+#undef HAVE_INTTYPES_H
+#undef HAVE_STDINT_H
+#undef HAVE_UINT64_T
+#include <llvm/Support/MemoryBuffer.h>
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
 #include <fstream>
 #include <sstream>
 #include <string>
 
-#include <u-lang/u.hpp>
 #include <u-lang/Basic/SourceLocation.hpp>
+#include <u-lang/u.hpp>
 
 namespace u
 {
@@ -78,9 +93,7 @@ public:
 
   SourceLocation getLocation() const override
   {
-    return SourceLocation(fileName_,
-                          filePath_,
-                          SourceRange(position_, position_));
+    return SourceLocation(fileName_, filePath_, SourceRange(position_, position_));
   }
 
 protected:
@@ -128,15 +141,85 @@ public:
 
   SourceLocation getLocation() const override
   {
-    return SourceLocation("top-level.u",
-                          ".",
-                          SourceRange(position_, position_));
+    return SourceLocation("top-level.u", ".", SourceRange(position_, position_));
   }
 
 protected:
   std::string source_;
   bool hasBOM_;
   std::stringstream stream_;
+  std::istreambuf_iterator<char> it_;
+  std::istreambuf_iterator<char> end_;
+  bool first_;
+  SourcePosition position_;
+  bool gotNewLine_;
+};
+
+class UAPI MemoryBufferInputStream : public std::istream
+{
+public:
+  MemoryBufferInputStream(const uint8_t* Data, size_t Length)
+    : std::istream(&buffer_)
+    , buffer_{Data, Length}
+  {
+    rdbuf(&buffer_);
+  }
+
+private:
+  class MemoryBuffer : public std::basic_streambuf<char>
+  {
+  public:
+    MemoryBuffer(const uint8_t* Data, size_t Length)
+    {
+      setg(reinterpret_cast<char*>(const_cast<uint8_t*>(Data)),
+           reinterpret_cast<char*>(const_cast<uint8_t*>(Data)),
+           reinterpret_cast<char*>(const_cast<uint8_t*>(Data)) + Length);
+    }
+  };
+
+  MemoryBuffer buffer_;
+};
+
+class UAPI MemoryBufferSource : public Source
+{
+public:
+  MemoryBufferSource() = delete;
+
+  explicit MemoryBufferSource(std::unique_ptr<llvm::MemoryBuffer> Buf)
+    : Source()
+    , source_{std::move(Buf)}
+    , hasBOM_{false}
+    , stream_{reinterpret_cast<const uint8_t*>(source_->getBufferStart()), source_->getBufferSize()}
+    , it_{stream_.rdbuf()}
+    , first_{true}
+    , position_{1, 0}
+    , gotNewLine_{false}
+  {
+  }
+
+  MemoryBufferSource(MemoryBufferSource const&) = delete;
+
+  MemoryBufferSource(MemoryBufferSource&&) = delete;
+
+  MemoryBufferSource& operator=(MemoryBufferSource const&) = delete;
+
+  MemoryBufferSource& operator=(MemoryBufferSource&&) = delete;
+
+  explicit operator bool() const override { return it_ != end_; }
+
+  bool hasBOM() const override { return hasBOM_; }
+
+  uint32_t Get() override;
+
+  SourceLocation getLocation() const override
+  {
+    return SourceLocation("top-level.u", ".", SourceRange(position_, position_));
+  }
+
+protected:
+  std::unique_ptr<llvm::MemoryBuffer> source_;
+  bool hasBOM_;
+  MemoryBufferInputStream stream_;
   std::istreambuf_iterator<char> it_;
   std::istreambuf_iterator<char> end_;
   bool first_;
