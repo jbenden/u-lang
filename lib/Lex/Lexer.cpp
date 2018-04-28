@@ -141,7 +141,7 @@ Lexer::GetChar()
     uint32_t ch = source_.Get();
 
     // insert character into the SourceManager for this file.
-    auto& FI = SM->getOrInsertFile(fileName_, filePath_);
+    auto& FI = SM->getOrInsertFileInfo(fileName_, filePath_);
     FI.AddCharacter(source_.getLocation().getRange().getBegin().getLineNumber(), ch);
 
     return ch;

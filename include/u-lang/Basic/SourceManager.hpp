@@ -82,7 +82,7 @@ public:
   }
 
   /// \brief Retrieve or create the FileInfo for the specified filename and path.
-  FileInfo& getOrInsertFile(std::string file, std::string path);
+  FileInfo& getOrInsertFileInfo(std::string file, std::string path);
 
   /// \brief Returns an iterator pointing at the beginning of the FileTable data.
   iterator begin() { return FileTable.begin(); }

@@ -55,7 +55,7 @@ FileInfo::AddCharacter(uint64_t LineNum, uint32_t Char)
 }
 
 FileInfo&
-SourceManager::getOrInsertFile(std::string file, std::string path)
+SourceManager::getOrInsertFileInfo(std::string file, std::string path)
 {
   auto Entry = FileTable.find(std::make_pair(file, path));
 

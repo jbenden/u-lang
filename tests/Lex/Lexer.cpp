@@ -596,7 +596,7 @@ TEST_F(LexerTest, SourceManagerContainsOurSource) // NOLINT
 
   EXPECT_EQ(tok::eof, lexer->Lex().getKind());
 
-  auto& FI = sourceManager->getOrInsertFile("top-level.u", ".");
+  auto& FI = sourceManager->getOrInsertFileInfo("top-level.u", ".");
   EXPECT_GE(FI.getLine(1).size(), 0u);
 
   EXPECT_STREQ("'\\xg0'", FI.getLine(1).c_str());
