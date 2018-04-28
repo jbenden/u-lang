@@ -13,7 +13,7 @@ add_definitions(-DULANG_TEST_FIXTURE_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/fixtures
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../third-party/gmock/include")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../third-party/gmock/gtest/include")
 
-add_executable(tests tests.cpp Basic/PunctuatorTable.cpp Basic/TokenKinds.cpp Basic/Source.cpp Basic/Diagnostic.cpp Lex/Lexer.cpp Basic/VirtualFileSystem.cpp)
+add_executable(tests tests.cpp Basic/PunctuatorTable.cpp Basic/TokenKinds.cpp Basic/Source.cpp Basic/Diagnostic.cpp Lex/Lexer.cpp Basic/VirtualFileSystem.cpp Basic/FileManager.cpp Basic/SourceManager.cpp)
 add_dependencies(tests stdtypes_h)
 target_link_libraries(tests ulangBasic ulangLex
                       glog
