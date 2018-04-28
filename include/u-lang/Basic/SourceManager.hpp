@@ -86,6 +86,8 @@ public:
     FM = std::make_unique<FileManager>();
   }
 
+  FileManager& getFileManager() { return *FM; }
+
   std::shared_ptr<Source> getFile(std::string path);
 
   /// \brief Retrieve or create the FileInfo for the specified filename and path.
