@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 
+#include <u-lang/Basic/FileManager.hpp>
 #include <u-lang/u.hpp>
 
 #include <utf8.h>
@@ -72,7 +73,13 @@ class UAPI SourceManager
   /// the specified pair.
   FilePathTableT FileTable;
 
+  std::unique_ptr<FileManager> FM;
+
 public:
+  SourceManager()
+  {
+    FM = std::make_unique<FileManager>();
+  }
 
   /// \brief Retrieve or create the FileInfo for the specified filename and path.
   FileInfo& getOrInsertFile(std::string file, std::string path);
