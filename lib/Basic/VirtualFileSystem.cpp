@@ -77,7 +77,7 @@ std::error_code set_current_path(const Twine &path) {
   StringRef p = path.toNullTerminatedStringRef(path_storage);
 
   if (::chdir(p.begin()) == -1)
-    return std::error_code{errno, std::generic_category()};
+    return std::error_code{errno, std::generic_category()}; // LCOV_EXCL_LINE
 
   return std::error_code{};
 }
@@ -229,7 +229,7 @@ FileSystem::makeAbsolute(SmallVectorImpl<char>& Path) const
   if (llvm::sys::path::is_absolute(Path))
     return std::error_code{};
 
-  auto WorkingDir = getCurrentWorkingDirectory();
+  auto WorkingDir = getCurrentWorkingDirectory(); // LCOV_EXCL_LINE
   if (!WorkingDir) // LCOV_EXCL_LINE
     return WorkingDir.getError(); // LCOV_EXCL_LINE
 
@@ -485,7 +485,7 @@ OverlayFileSystem::openFileForRead(const llvm::Twine& Path)
     auto Result = (*I)->openFileForRead(Path);
     if (Result || Result.getError() != llvm::errc::no_such_file_or_directory)
       return Result;
-  }
+  } // LCOV_EXCL_LINE
   return make_error_code(llvm::errc::no_such_file_or_directory);
 }
 
