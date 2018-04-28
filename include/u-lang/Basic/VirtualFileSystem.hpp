@@ -51,7 +51,6 @@
 
 #include <u-lang/Basic/DiagnosticIDs.hpp>
 #include <u-lang/Basic/SourceLocation.hpp>
-#include <u-lang/Basic/SourceManager.hpp>
 #include <u-lang/u.hpp>
 
 #include <algorithm>
