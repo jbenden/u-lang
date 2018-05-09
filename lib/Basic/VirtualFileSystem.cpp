@@ -932,6 +932,14 @@ ConcatenatedOverlayFileSystem::ConcatenatedOverlayFileSystem(IntrusiveRefCntPtr<
   FSList.push_back(std::move(BaseFS));
 }
 
+ConcatenatedOverlayFileSystem::~ConcatenatedOverlayFileSystem()
+{
+  for (auto item : Cleanup)
+  {
+    delete reinterpret_cast<detail::InMemoryFile*>(item);
+  }
+}
+
 void
 ConcatenatedOverlayFileSystem::pushOverlay(IntrusiveRefCntPtr<FileSystem> FS)
 {
@@ -1017,6 +1025,8 @@ ConcatenatedOverlayFileSystem::openFileForRead(const llvm::Twine& Path)
               "");
 
   auto* F = new detail::InMemoryFile(std::move(Stat), std::move(memoryBuffer));
+
+  Cleanup.push_back(F);
 
   return std::unique_ptr<File>(new detail::InMemoryFileAdaptor(*F));
 }

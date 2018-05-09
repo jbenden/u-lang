@@ -471,8 +471,12 @@ class ConcatenatedOverlayFileSystem : public FileSystem
   /// their addition.
   FileSystemList FSList;
 
+  std::vector<void*> Cleanup;
+
 public:
   explicit ConcatenatedOverlayFileSystem(IntrusiveRefCntPtr<FileSystem> Base);
+
+  ~ConcatenatedOverlayFileSystem();
 
   /// \brief Pushes a file system on top of the stack.
   void pushOverlay(IntrusiveRefCntPtr<FileSystem> FS);
